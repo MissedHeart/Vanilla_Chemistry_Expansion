@@ -48,7 +48,7 @@ label_blended,勾兑
 category_blended_wine,葡萄酒品质
 category_wine_blend,酿造方式
 making_notes_name,勾兑酒酿造笔记
-making_1,"[[image:vanilla_chem_ext:blender_b|w=24|h=24|gap=6|float=left]]\n- 将液体容器接到搅拌机上\n- 加入几枚可食用梦帽菇\n- 搅拌原料，制成可食用梦帽菇糊\n[[section:第8步：制取乙酸]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- 取下上一步使用的容器\n- 将其放入加热板\n- 将混合物加热至100°C以上蒸干，再加热至150°C以上干馏，使植物质变成乙酸和木炭残渣"
+making_1,"[[image:vanilla_chem_ext:blender_b|w=24|h=24|gap=6|float=left]]\n- 将液体容器接到搅拌机上\n- 加入能产出植物质的原料，如可食用梦帽菇、梦帽菇或梦魇帽菇\n- 搅拌原料；梦帽菇糊和梦魇帽菇糊受热后也会变成植物质\n[[section:第8步：制取乙酸]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- 取下上一步使用的容器\n- 将其放入加热板\n- 将混合物加热至100°C以上蒸干，再加热至150°C以上干馏，使植物质变成乙酸和木炭残渣"
 making_2,"[[section:第9步：制取乙酸乙酯]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- 加入相当于乙酸体积2倍的酒精\n- 加入相当于溶液总体积1%的酸\n- 将混合物加热至60-75°C，使乙酸和酒精生成乙酸乙酯"
 making_3,"[[section:第10步：提纯产物（可选）]]\n- 加入碱液中和，用滤水器过滤除去残渣，溶液中剩下的乙酸乙酯、酒精和水均可以直接使用"
 making_4,"- 勾兑应使酒精占液体总量的20%-25%，每1000毫升液体需要添加1-2毫升乙酸乙酯，其他杂质不应超过液体总量的1%"
