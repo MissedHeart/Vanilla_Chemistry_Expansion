@@ -261,6 +261,8 @@ public static class Strain
     public const string SPRITE = "vce_strain";
     public const string FROZEN_SPRITE = "vce_strain_frozen";
 
+    private const string MATERIAL_TYPE = "MATERIAL";
+
     public const long VALUE = 60;
     public const long FROZEN_VALUE = 120;
 
@@ -322,7 +324,8 @@ public static class Strain
             item.shortDescription = Text.Get("strain_desc");
             item.flavorText = Text.Get("strain_flavor");
             item.unitValue = VALUE;
-            item.SetGameItemType("MATERIAL");
+            // No item type: a strain is not a material (that label also let it into the furnace and the
+            // material price events).
             AudioHelper.InitTinyItem(item);
             // Any blender crushes it; vanilla's module loss applies as it does to ores and plants.
             ChemicalHelper.InitChemItem(item, true, false);
@@ -331,6 +334,11 @@ public static class Strain
             {
                 EnsureIdentity(strain);
                 CountDownFreezeMark(strain);
+                // Strains saved by 1.8.0 may still carry the MATERIAL type.
+                if (strain.IsGameItemType(MATERIAL_TYPE))
+                {
+                    strain.RemoveGameItemType(MATERIAL_TYPE);
+                }
             };
             // Dropping a liquid container on the strain doses it with a mutagen (StrainMutation.cs).
             item.mayItemTargetThisFunc = (GameItem source, GameItem target) => StrainMutation.CanDose(source, target);

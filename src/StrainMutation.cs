@@ -1,5 +1,5 @@
 // Strain mutation (docs/ANTIBIOTICS_DESIGN.md section 6). Breeding rolls a natural mutation on every strain a
-// fermenter harvests: a 5% chance of changing one to three letters of the genome, and a 30% chance of moving the
+// fermenter harvests: a 0.5% chance of changing one to three letters of the genome, and a 30% chance of moving the
 // numeric traits by a total of -2 to +1, so a line left to itself degrades. Dropping a liquid container on a
 // strain mutates it on purpose: 4.5-5.5 mL whose largest component is a mutagen at 90% or better. Getting any of
 // that wrong still costs the liquid and still mutates, just never for the better.
@@ -58,7 +58,8 @@ public class Mutagen
 public static class StrainMutation
 {
     // Natural mutation, rolled for every strain a fermenter harvests.
-    public const int NATURAL_GENOME_CHANCE = 5;
+    // In tenths of a percent (RNG.Roll takes whole numbers): 5 = 0.5%.
+    public const int NATURAL_GENOME_CHANCE_PERMILLE = 5;
     public const int NATURAL_GENOME_MIN = 1;
     public const int NATURAL_GENOME_MAX = 3;
     public const int NATURAL_TRAIT_CHANCE = 30;
@@ -127,7 +128,7 @@ public static class StrainMutation
         {
             return;
         }
-        if (RNG.Roll(NATURAL_GENOME_CHANCE))
+        if (RNG.Roll(NATURAL_GENOME_CHANCE_PERMILLE, 1000))
         {
             MutateGenome(strain, RNG.GetRandomInt(NATURAL_GENOME_MIN, NATURAL_GENOME_MAX));
         }

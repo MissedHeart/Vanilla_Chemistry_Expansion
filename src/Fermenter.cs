@@ -28,6 +28,9 @@ public static class Fermenter
 
     // Nights this batch has run.
     public const string NIGHTS_TAG = "VCE_FERMENTER_NIGHTS_TAG";
+    // The strain (GameItem.uniqueId) those nights belong to. Loading a save puts the strain back into its slot,
+    // which fires the slot's add callback; comparing the id keeps that from restarting a multi-night batch.
+    public const string BATCH_STRAIN_TAG = "VCE_FERMENTER_BATCH_STRAIN_TAG";
     // Set once the fixed dispenser and the manual are in, so they are never added twice.
     public const string STOCKED_TAG = "VCE_FERMENTER_STOCKED_TAG";
     public const string TURBO_ELIGIBLE_TAG = "TURBO_BOOST_ELIGIBLE_TAG";
@@ -111,9 +114,9 @@ public static class Fermenter
         slots.Add(machine, s);
         try
         {
-            machine.name = Text.Get("fermenter_name");
-            machine.shortDescription = Text.Get("fermenter_desc");
-            machine.flavorText = Text.Get("fermenter_flavor");
+            ApplyText(machine);
+            // A save keeps the text the item had when it was saved; take the current wording on load.
+            machine.onLoaded = (Action<GameItem>)Delegate.Combine(machine.onLoaded, (Action<GameItem>)ApplyText);
             machine.unitValue = VALUE;
             machine.SetGameItemType("MACHINE");
             machine.EnableTag("CONTAINER_TAG", false);
@@ -131,19 +134,16 @@ public static class Fermenter
             // The harvest comes out of the machine; nothing is put back in by hand.
             s.Output.mayInventoryAddItemFunc = (GameItem _, GameInventory __) => false;
 
-            foreach (GameSlotInventory watched in new GameSlotInventory[] { s.StrainInput })
+            // A different strain starts a new batch; the same strain coming back (a save being loaded) keeps it.
+            s.StrainInput.onSlotAddItemEndFunc = delegate(GameItem added, GameInventory __, SlotMarker ___)
             {
-                watched.onSlotAddItemEndFunc = delegate(GameItem _, GameInventory __, SlotMarker ___)
-                {
-                    ResetBatch(machine);
-                    ApplySprite(machine);
-                };
-                watched.onSlotRemoveItemEndFunc = delegate(GameItem _, GameInventory __, SlotMarker ___)
-                {
-                    ResetBatch(machine);
-                    ApplySprite(machine);
-                };
-            }
+                BindBatch(machine, added);
+                ApplySprite(machine);
+            };
+            s.StrainInput.onSlotRemoveItemEndFunc = delegate(GameItem _, GameInventory __, SlotMarker ___)
+            {
+                ApplySprite(machine);
+            };
 
             MachineHelper.SetupBatterySlot(s.Battery, machine);
             MachineHelper.SetupModuleBay(s.Modules, machine, null, new string[] { "MODULE_TYPE_UNIVERSAL" });
@@ -319,9 +319,45 @@ public static class Fermenter
         machine.ValidateShapeState();
     }
 
+    private static void ApplyText(GameItem machine)
+    {
+        if (machine == null)
+        {
+            return;
+        }
+        machine.name = Text.Get("fermenter_name");
+        machine.shortDescription = Text.Get("fermenter_desc");
+        machine.flavorText = Text.Get("fermenter_flavor");
+    }
+
     public static void ResetBatch(GameItem machine)
     {
         SetNights(machine, 0);
+    }
+
+    // Ties the night count to this strain; restarts it only when the strain is a different one. GetUniqueID hands
+    // out an id to a strain that has none yet; loading restores the saved ids before children go back into slots.
+    private static void BindBatch(GameItem machine, GameItem strain)
+    {
+        if (machine == null || strain == null || PlayerStore.Instance == null)
+        {
+            return;
+        }
+        int id = strain.GetUniqueID();
+        int bound = machine.IsTag(BATCH_STRAIN_TAG) ? machine.GetTagReadonly(BATCH_STRAIN_TAG).GetInt() : 0;
+        if (bound == id)
+        {
+            return;
+        }
+        // Batches started before this tag existed have no owner yet: keep their nights.
+        if (bound != 0)
+        {
+            SetNights(machine, 0);
+        }
+        machine.ModifyTag(BATCH_STRAIN_TAG, delegate(TagState state)
+        {
+            state.Enable().SetInt(id);
+        }, true);
     }
 
     // Nights this batch needs, from the strain in the machine.
@@ -346,6 +382,7 @@ public static class Fermenter
         }
         // Same as the blender: a strain put in before its first tick still gets a genome before it breeds.
         Strain.EnsureIdentity(strain);
+        BindBatch(machine, strain);
         SyncPowerTag(machine);
         int kcal = StrainTraits.KcalPerNight(strain);
         if (StoredKcal(machine) < kcal)

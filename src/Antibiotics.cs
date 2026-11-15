@@ -158,24 +158,6 @@ public static class CephData
         Log.Info("cephalosporin C spoiled into bioliquid waste: " + ceph + " uL");
     }
 
-    // Copies the carried data onto something that just received part of this lot; shares scale with the
-    // fraction that moved, the genome and the purity trait carry over unchanged.
-    public static void CopyShare(GameItem from, GameItem to, double fraction)
-    {
-        if (from == null || to == null || fraction <= 0.0)
-        {
-            return;
-        }
-        double factor = Math.Min(1.0, fraction);
-        SetGenome(to, Genome(from));
-        SetInt(to, PURITY_TAG, PurityTenths(from));
-        for (int target = 0; target < TARGET_TAGS.Length; target++)
-        {
-            int share = (int)Math.Round(Int(from, TARGET_TAGS[target]) * factor);
-            SetInt(to, TARGET_TAGS[target], TargetShare(to, target) + share);
-        }
-    }
-
     // Takes the moved share off the source, so pouring half a flask leaves half the record behind.
     public static void RemoveShare(GameItem from, double fraction)
     {
@@ -191,6 +173,239 @@ public static class CephData
         if (TargetTotal(from) <= 0)
         {
             Clear(from);
+        }
+    }
+
+    // The target shares are meant to add up to the cephalosporin C really in the container. Whatever took some out
+    // without telling us (older versions, other mods that write liquid amounts themselves, reactions) left shares
+    // behind, and those stale shares outweighed every new batch. Scale them down to what is there; clear the record
+    // when nothing is. Called before the record is used. Containers only: a product's shares are set when pressed.
+    public static void Reconcile(GameItem container, int actualUl)
+    {
+        if (container == null)
+        {
+            return;
+        }
+        int total = TargetTotal(container);
+        if (actualUl <= 0)
+        {
+            if (total > 0 || Genome(container).Length > 0)
+            {
+                Clear(container);
+            }
+            return;
+        }
+        if (total <= actualUl)
+        {
+            return;
+        }
+        double factor = actualUl / (double)total;
+        for (int target = 0; target < TARGET_TAGS.Length; target++)
+        {
+            SetInt(container, TARGET_TAGS[target], (int)Math.Round(Int(container, TARGET_TAGS[target]) * factor));
+        }
+    }
+
+    public static void Reconcile(GameItem container)
+    {
+        if (container != null)
+        {
+            Reconcile(container, IaLiquids.Get(container, Antibiotics.CEPH_ID));
+        }
+    }
+
+    // A product was filled with `received` uL of cephalosporin C from this container: it gets the genome, the
+    // purity trait and the extraction-target split of the container's record. Based on what the product received,
+    // not on what the container lost, because some batch tools fill products from a copy and write the container
+    // back only at the end.
+    public static void CopyToProduct(GameItem from, GameItem product, int received)
+    {
+        if (from == null || product == null || received <= 0)
+        {
+            return;
+        }
+        int total = TargetTotal(from);
+        string genome = Genome(from);
+        if (total <= 0 || genome.Length == 0)
+        {
+            return;
+        }
+        SetGenome(product, genome);
+        SetInt(product, PURITY_TAG, PurityTenths(from));
+        for (int target = 0; target < TARGET_TAGS.Length; target++)
+        {
+            SetInt(product, TARGET_TAGS[target], (int)Math.Round(Int(from, TARGET_TAGS[target]) * (double)received / total));
+        }
+    }
+
+    // A pour moved cephalosporin C from one container to another: the record goes along. The target's purity
+    // becomes the volume-weighted mean of what it had and what arrived; a different genome spoils the target.
+    // sentFraction is the share of the source's cephalosporin C that left it, received the amount that arrived
+    // (a filter may hold some back), targetHad what the target held before.
+    public static void Pour(GameItem from, GameItem to, double sentFraction, int received, int targetHad)
+    {
+        if (from == null || to == null || sentFraction <= 0.0)
+        {
+            return;
+        }
+        string genome = Genome(from);
+        int sourceTotal = TargetTotal(from);
+        if (genome.Length == 0 || sourceTotal <= 0)
+        {
+            RemoveShare(from, sentFraction);
+            return;
+        }
+        if (received > 0)
+        {
+            string hadGenome = Genome(to);
+            if (targetHad > 0 && hadGenome.Length > 0 && hadGenome != genome)
+            {
+                RemoveShare(from, sentFraction);
+                Spoil(to);
+                return;
+            }
+            // Target liquid without a record (or none at all) takes the arriving purity.
+            int purity = targetHad > 0 && hadGenome.Length > 0
+                ? (int)Math.Round((PurityTenths(to) * (double)targetHad + PurityTenths(from) * (double)received)
+                    / (targetHad + received))
+                : PurityTenths(from);
+            double arriving = Math.Min(1.0, received / (double)sourceTotal);
+            SetGenome(to, genome);
+            SetInt(to, PURITY_TAG, purity);
+            for (int target = 0; target < TARGET_TAGS.Length; target++)
+            {
+                int share = (int)Math.Round(Int(from, TARGET_TAGS[target]) * arriving);
+                SetInt(to, TARGET_TAGS[target], TargetShare(to, target) + share);
+            }
+        }
+        RemoveShare(from, sentFraction);
+    }
+}
+
+// Pen's pipette mod (Pen_mod_pipette) moves liquid by setting the containers' liquid tags itself, not through
+// WaterHelper.TransferLiquid, so CephPourPatch never sees it. Every draw and every dispense goes through
+// PenPipette.PipetteTransfer.OnTarget(pipette, target): compare the cephalosporin C on both sides before and after
+// and carry the record the way the liquid went. Installed late (DeferredPatches) so the pipette mod is loaded by
+// then; skipped when it is not installed.
+[HarmonyPatch]
+public static class CephPipettePatch
+{
+    private static System.Reflection.MethodBase Target()
+    {
+        Type type = AccessTools.TypeByName("PenPipette.PipetteTransfer");
+        return type != null ? AccessTools.Method(type, "OnTarget", new Type[] { typeof(GameItem), typeof(GameItem) }) : null;
+    }
+
+    private static bool Prepare()
+    {
+        return DeferredPatches.Ready && Target() != null;
+    }
+
+    private static System.Reflection.MethodBase TargetMethod()
+    {
+        return Target();
+    }
+
+    private static void Prefix(object[] __args, out CephPourPatch.Before __state)
+    {
+        __state = new CephPourPatch.Before();
+        try
+        {
+            GameItem pipette = __args[0] as GameItem;
+            GameItem other = __args[1] as GameItem;
+            if (pipette != null && other != null)
+            {
+                __state.Source = IaLiquids.Get(pipette, Antibiotics.CEPH_ID);
+                __state.Target = IaLiquids.Get(other, Antibiotics.CEPH_ID);
+                CephData.Reconcile(pipette, __state.Source);
+                CephData.Reconcile(other, __state.Target);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Error("reading cephalosporin C before a pipette move failed", e);
+        }
+    }
+
+    private static void Postfix(object[] __args, CephPourPatch.Before __state)
+    {
+        try
+        {
+            GameItem pipette = __args[0] as GameItem;
+            GameItem other = __args[1] as GameItem;
+            if (pipette == null || other == null)
+            {
+                return;
+            }
+            int pipetteDelta = IaLiquids.Get(pipette, Antibiotics.CEPH_ID) - __state.Source;
+            int otherDelta = IaLiquids.Get(other, Antibiotics.CEPH_ID) - __state.Target;
+            if (pipetteDelta < 0 && __state.Source > 0)
+            {
+                // Dispensed: pipette -> container.
+                CephData.Pour(pipette, other, (double)-pipetteDelta / __state.Source, Math.Max(0, otherDelta), __state.Target);
+            }
+            else if (otherDelta < 0 && __state.Target > 0)
+            {
+                // Drawn: container -> pipette.
+                CephData.Pour(other, pipette, (double)-otherDelta / __state.Target, Math.Max(0, pipetteDelta), __state.Source);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Error("carrying the cephalosporin record on a pipette move failed", e);
+        }
+    }
+}
+
+// Pouring cephalosporin C between containers carries its genome, purity trait and extraction target along
+// (without this the record stayed behind and tablets pressed from a poured lot came out at purity 0, no genome).
+[HarmonyPatch(typeof(WaterHelper), "TransferLiquid")]
+public static class CephPourPatch
+{
+    public struct Before
+    {
+        public int Source;
+        public int Target;
+    }
+
+    private static void Prefix(GameItem sourceContainer, GameItem targetContainer, out Before __state)
+    {
+        __state = new Before();
+        try
+        {
+            if (sourceContainer != null && targetContainer != null)
+            {
+                __state.Source = IaLiquids.Get(sourceContainer, Antibiotics.CEPH_ID);
+                __state.Target = IaLiquids.Get(targetContainer, Antibiotics.CEPH_ID);
+                CephData.Reconcile(sourceContainer, __state.Source);
+                CephData.Reconcile(targetContainer, __state.Target);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Error("reading cephalosporin C before a pour failed", e);
+        }
+    }
+
+    private static void Postfix(GameItem sourceContainer, GameItem targetContainer, Before __state)
+    {
+        try
+        {
+            if (__state.Source <= 0 || sourceContainer == null || targetContainer == null)
+            {
+                return;
+            }
+            int sent = __state.Source - IaLiquids.Get(sourceContainer, Antibiotics.CEPH_ID);
+            if (sent <= 0)
+            {
+                return;
+            }
+            int received = Math.Max(0, IaLiquids.Get(targetContainer, Antibiotics.CEPH_ID) - __state.Target);
+            CephData.Pour(sourceContainer, targetContainer, (double)sent / __state.Source, received, __state.Target);
+        }
+        catch (Exception e)
+        {
+            Log.Error("carrying the cephalosporin record on a pour failed", e);
         }
     }
 }
@@ -502,6 +717,8 @@ public static class StrainBlendPatch
             {
                 return;
             }
+            // What the container held before this strain went in: the record must not count more than that.
+            CephData.Reconcile(liquidContainer, Math.Max(0, IaLiquids.Get(liquidContainer, Antibiotics.CEPH_ID) - added));
             CephData.Add(liquidContainer, added, StrainTraits.Genome(chemicalItem),
                 StrainTraits.Purity(chemicalItem), StrainTraits.Target(chemicalItem));
             Log.Info("blended a strain: genome " + StrainTraits.Genome(chemicalItem) + ", " + added
@@ -515,34 +732,45 @@ public static class StrainBlendPatch
 }
 
 // The Chem Finisher moves liquid out of the container and into the product: the carried record moves with it.
+// The product's share is what it received, not what the container lost: Pen's QoL batch output skips vanilla's
+// transfer, fills each product from a copy of the container's liquid and writes the container back only at the
+// end, so during the batch the container never changes. The container's record is trimmed to what is left
+// before and after each press.
 [HarmonyPatch(typeof(ChemicalHelper), "TransferLiquidToChem")]
 public static class CephTransferPatch
 {
-    private static int cephBefore;
-
     private static void Prefix(GameItem container)
     {
-        cephBefore = container != null ? IaLiquids.Get(container, Antibiotics.CEPH_ID) : 0;
+        try
+        {
+            CephData.Reconcile(container);
+        }
+        catch (Exception e)
+        {
+            Log.Error("trimming the cephalosporin record before pressing failed", e);
+        }
     }
 
     private static void Postfix(GameItem container, GameItem chemicalItem)
     {
         try
         {
-            if (container == null || chemicalItem == null || cephBefore <= 0)
+            if (container == null || chemicalItem == null)
             {
                 return;
             }
-            int moved = cephBefore - IaLiquids.Get(container, Antibiotics.CEPH_ID);
-            if (moved <= 0)
+            int received = IaLiquids.Get(chemicalItem, Antibiotics.CEPH_ID);
+            if (received <= 0)
             {
                 return;
             }
-            double fraction = (double)moved / cephBefore;
-            CephData.CopyShare(container, chemicalItem, fraction);
-            CephData.RemoveShare(container, fraction);
-            Log.Info("pressed from cephalosporin C: genome " + CephData.Genome(chemicalItem) + ", "
-                + moved + " uL moved");
+            CephData.CopyToProduct(container, chemicalItem, received);
+            CephData.Reconcile(container);
+            Log.Info("pressed from cephalosporin C: genome " + CephData.Genome(chemicalItem) + ", " + received
+                + " uL, purity trait " + StrainTraits.Format(CephData.PurityTenths(chemicalItem))
+                + ", target split " + CephData.Int(chemicalItem, CephData.TARGET_LIQUID_TAG) + "/"
+                + CephData.Int(chemicalItem, CephData.TARGET_SURFACE_TAG) + "/"
+                + CephData.Int(chemicalItem, CephData.TARGET_INTRA_TAG));
         }
         catch (Exception e)
         {

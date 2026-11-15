@@ -1998,18 +1998,30 @@ public static class CartelSupply
         return client.phoneState == StorePhoneClient.PhoneState.Cooldown ? Cooldown(client) : Menu();
     }
 
+    // The phone shows at most three choice bubbles (vanilla suppliers never offer more), so the menu is paged: two
+    // products and "something else" per page, and the last page ends with "wrong number".
+    private const int PER_PAGE = 2;
+
     private static Dialogue Menu()
+    {
+        Log.Info("cartel network: supply menu opened");
+        return MenuPage(0, Text.Get("cartel_supply_ask"));
+    }
+
+    private static Dialogue MenuPage(int first, string prompt)
     {
         string name = Text.Get("cartel_supply_name");
         Dialogue menu = new Dialogue();
-        menu.SetText(name, Text.Get("cartel_supply_ask"));
-        for (int i = 0; i < Products.Length; i++)
+        menu.SetText(name, prompt);
+        int end = Math.Min(first + PER_PAGE, Products.Length);
+        for (int i = first; i < end; i++)
         {
             int stock = i;
             Dialogue order = new Dialogue();
             order.SetText("PLAYER", "[" + LocHelper.GetLocalizedMechanic(Products[i]) + "]");
             menu.AddChoice(DirectoryMaster.Item("$", true), "", "", order, delegate
             {
+                Log.Info("cartel network: ordered " + Products[stock]);
                 CartelNetwork.SetData(STOCK_KEY, stock);
                 StorePhoneClient contact = Contact();
                 if (contact != null)
@@ -2022,6 +2034,14 @@ public static class CartelSupply
                     PhoneUIManager.Instance.OnPhoneDialogEnd();
                 });
             });
+        }
+        if (end < Products.Length)
+        {
+            Dialogue more = new Dialogue();
+            more.SetText("PLAYER", Text.Get("cartel_supply_more"));
+            more.SetNextDialogue(MenuPage(end, Text.Get("cartel_supply_ask_more")));
+            menu.AddChoice(DirectoryMaster.Item("$", true), "", "", more);
+            return menu;
         }
         Dialogue wrong = new Dialogue();
         wrong.SetText("PLAYER", Text.Get("cartel_supply_wrong_number"));

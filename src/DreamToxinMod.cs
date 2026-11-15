@@ -33,6 +33,7 @@ public class DreamToxinMod : IMod
         PuBattery.Enable();
         Strain.Enable();
         Fermenter.Enable();
+        FilterResidue.Enable();
         Antibiotics.Enable();
         Resistance.Enable();
         AntibioticTestKit.Enable();
@@ -89,6 +90,7 @@ public class DreamToxinMod : IMod
         PuBattery.Disable();
         Strain.Disable();
         Fermenter.Disable();
+        FilterResidue.Disable();
         Antibiotics.Disable();
         Resistance.Disable();
         AntibioticTestKit.Disable();
@@ -214,6 +216,7 @@ public static class DeferredPatches
         Patch(harmony, typeof(CartelDistrustHighPatch));
         Patch(harmony, typeof(CartelDistrustCriticalPatch));
         Patch(harmony, typeof(AmpouleRecipePatch));
+        Patch(harmony, typeof(CephPipettePatch));
     }
 
     private static void Patch(Harmony harmony, Type patchClass)
