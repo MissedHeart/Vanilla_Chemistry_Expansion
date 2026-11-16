@@ -81,6 +81,7 @@ public static class CartelNetwork
     public static void AddItems(ModItemDirectory directory)
     {
         directory.Add(CartelNote.ITEM_ID, CartelNote.CreateItem);
+        CartelPack.AddItems(directory);
     }
 
     public static StoreReputation Find()
@@ -1886,20 +1887,169 @@ public static class CartelProtectionEndOfDayPatch
     }
 }
 
+// A shrink-wrapped pack of 20 supply bottles on a cardboard tray (Textures/Items/vce_cartel_pack_<product>.png,
+// art/cartel_packs/draw_packs.py), what the Cartel Network courier delivers. Double-click unpacks it: the bottles go
+// where the pack is, then wherever there is room in the shop. Bottles that find no room stay in the pack, which
+// keeps count, so nothing is lost when the shop is full.
+public static class CartelPack
+{
+    public const string ITEM_PREFIX = "vce_cartel_pack_";
+    public const string LEFT_TAG = "VCE_CARTEL_PACK_LEFT_INT";
+    public const int QUANTITY = 20;
+
+    // In CartelSupply's stock order: sprite/item suffix, price.
+    private static readonly string[] Ids = { "acid", "base", "reducing_agent", "lipobond_agent", "alcohol", "n_solution" };
+    private static readonly long[] Prices = { 250L, 250L, 500L, 500L, 250L, 500L };
+
+    public static string ItemId(int stock)
+    {
+        return ITEM_PREFIX + Ids[Math.Max(0, Math.Min(Ids.Length - 1, stock))];
+    }
+
+    public static void AddItems(ModItemDirectory directory)
+    {
+        for (int i = 0; i < Ids.Length; i++)
+        {
+            int stock = i;
+            directory.Add(ItemId(stock), () => Create(stock));
+        }
+    }
+
+    public static int Left(GameItem pack)
+    {
+        return pack != null && pack.IsTag(LEFT_TAG) ? pack.GetTagReadonly(LEFT_TAG).GetInt() : QUANTITY;
+    }
+
+    private static void SetLeft(GameItem pack, int left)
+    {
+        pack.ModifyTag(LEFT_TAG, delegate(TagState state)
+        {
+            state.Enable().SetInt(left);
+        }, true);
+    }
+
+    private static GameItem Create(int stock)
+    {
+        string id = ItemId(stock);
+        GameItem item = ItemDirectory.CreateEmptyItem(id);
+        try
+        {
+            item.SetSpriteAndShape("Items/items_material", "chemical1");
+            BeerSprites.Apply(item, id);
+            item.SetGameItemType("CHEMICAL_SUPPLIES");
+            item.unitValue = Prices[stock];
+            ApplyText(item);
+            item.canActivateSlotItemFunc = (GameItem s, GameInventory a, SlotMarker b) => GeneralHelper.IsItemOwned(s);
+            item.mayActivateSlotItemFunc = (GameItem s, GameInventory a, SlotMarker b) => GeneralHelper.IsItemOwned(s);
+            item.onActivateSlotItemFunc = delegate(GameItem pack, GameInventory inv, SlotMarker marker)
+            {
+                Unpack(pack, inv, stock);
+            };
+            item.onLoaded = (Action<GameItem>)Delegate.Combine(item.onLoaded, (Action<GameItem>)delegate(GameItem loaded)
+            {
+                BeerSprites.Apply(loaded, id);
+                ApplyText(loaded);
+            });
+            ModHelper.SetSource(item, DreamToxinMod.MOD_ID, DreamToxinMod.MOD_NAME);
+        }
+        catch (Exception e)
+        {
+            Log.Error("create " + id + " failed", e);
+        }
+        return item;
+    }
+
+    private static int StockOf(GameItem pack)
+    {
+        for (int i = 0; i < Ids.Length; i++)
+        {
+            if (pack.identifier == ItemId(i))
+            {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private static void ApplyText(GameItem pack)
+    {
+        string product = LocHelper.GetLocalizedMechanic(CartelSupply.ProductKey(StockOf(pack)));
+        pack.name = Text.Get("cartel_pack_name", product);
+        int left = Left(pack);
+        pack.shortDescription = left < QUANTITY
+            ? Text.Get("cartel_pack_desc_left", product, left)
+            : Text.Get("cartel_pack_desc", product, QUANTITY);
+    }
+
+    private static bool TryPlace(GraphNodeStorage node, GameItem bottle)
+    {
+        return node != null && GraphUtils.CanAccept(node, bottle) && GraphUtils.TryAcceptAll(node, bottle) <= 0
+            && bottle.parentInventory != null;
+    }
+
+    private static void Unpack(GameItem pack, GameInventory inv, int stock)
+    {
+        try
+        {
+            EmporiumEntry shop = EmporiumEntry.Instance;
+            GraphNodeStorage[] places = { inv, shop.backInvinvElement, shop.invElement, shop.showcaseElement, shop.frontInvinvElement };
+            int left = Left(pack);
+            while (left > 0)
+            {
+                GameItem bottle = CartelSupply.Bottle(stock);
+                if (bottle == null)
+                {
+                    break;
+                }
+                bool placed = false;
+                foreach (GraphNodeStorage place in places)
+                {
+                    if (TryPlace(place, bottle))
+                    {
+                        placed = true;
+                        break;
+                    }
+                }
+                if (!placed)
+                {
+                    bottle.Destroy();
+                    break;
+                }
+                left--;
+            }
+            if (left <= 0)
+            {
+                pack.Destroy();
+                return;
+            }
+            SetLeft(pack, left);
+            ApplyText(pack);
+            CartelNetwork.Notify(Text.Get("cartel_pack_full", left));
+        }
+        catch (Exception e)
+        {
+            Log.Error("unpacking " + pack.identifier + " failed", e);
+        }
+    }
+}
+
 // Cartel Network reputation 75, "Supply Network": a "Cartel Network" contact in the phone book, only while the perk
 // is active. "Need anything?" offers acid, base, reducing agent, lipobond agent, alcohol and N-solution (vanilla's
 // supplier bottles from PreBuildChemHelper; N-solution is the violet N-methylol base precursor bottle), or "wrong
-// number". An order brings a courier the next day with 20 of that bottle at a 33% wholesale discount; then the
-// contact rests for a few days, like vanilla's suppliers.
+// number". An order brings a courier the next day with a pack of 20 of that bottle (CartelPack): 250 for acid, base
+// and alcohol, 500 for the others; then the contact rests for a few days, like vanilla's suppliers.
 public static class CartelSupply
 {
     public const long NUMBER = 2278L;                      // C-A-R-T on a keypad
     public const string DIALOG_ID = "VceCartelNetwork";
     public const string COURIER_ID = "vce_cartel_courier";
     public const string STOCK_KEY = "cartel_supply_stock";
-    public const int QUANTITY = 20;
-    public const int WHOLESALE_DISCOUNT = -33;
     public const int COOLDOWN_DAYS = 3;
+
+    public static string ProductKey(int stock)
+    {
+        return Products[Math.Max(0, Math.Min(Products.Length - 1, stock))];
+    }
 
     // Liquid name keys (vanilla) for the menu, in menu order; the stock index is the position here.
     private static readonly string[] Products =
@@ -2066,7 +2216,7 @@ public static class CartelSupply
         return line;
     }
 
-    private static GameItem Bottle(int stock)
+    public static GameItem Bottle(int stock)
     {
         switch (stock)
         {
@@ -2079,7 +2229,7 @@ public static class CartelSupply
         }
     }
 
-    // A courier who lays out the order and sells it at a 33% wholesale discount, then leaves.
+    // A courier who lays out the order's pack at its fixed price (no haggling), then leaves.
     public static StoreClient CreateCourier()
     {
         StoreClient client = new StoreClient();
@@ -2090,15 +2240,15 @@ public static class CartelSupply
         client.tradeReputationMultiplier = CartelTradeRep.MULTIPLIER;  // 4x Cartel Network reputation, buying or selling
         client.isBargainAvailable = false;
         client.clientIntent = StoreClient.ClientIntent.SELL;
-        client.wholesaleDiscount = WHOLESALE_DISCOUNT;
-        client.isOfferWholesale = true;
+        client.isOfferWholesale = false;
         int stock = CartelNetwork.Data(STOCK_KEY);
         client.mainDialogue.SetText(client.displayName, Text.Get("cartel_courier_1"))
             .SetEndAction(delegate
             {
-                for (int i = 0; i < QUANTITY; i++)
+                GameItem pack = DirectoryMaster.Item(CartelPack.ItemId(stock), false);
+                if (pack != null)
                 {
-                    PlayerStore.Instance.AddDirectSellingItemToTable(Bottle(stock), false, false, false, 0);
+                    PlayerStore.Instance.AddDirectSellingItemToTable(pack, false, false, false, 0);
                 }
             });
         client.allDoneDialogue = new Dialogue().SetText(client.displayName, Text.Get("cartel_courier_done")).SetEndAction(delegate
@@ -2383,7 +2533,7 @@ public static class CartelPeer
         int misses = 0;
         for (int i = 0; i < MAX_TRIES && laid < MAX_ITEMS && misses < 4; i++)
         {
-            if (TryLay(DirectoryMaster.Item(ids[RNG.GetRandomInt(0, ids.Count - 1)], false)))
+            if (TryLay(CreateGood(ids[RNG.GetRandomInt(0, ids.Count - 1)])))
             {
                 laid++;
                 misses = 0;
@@ -2393,6 +2543,29 @@ public static class CartelPeer
                 misses++;
             }
         }
+    }
+
+    // Supply crates from the item directory are empty locked boxes; vanilla fills them through its loot crate builders
+    // (PreBuiltItemHelper.CreateLootCrate: crate id, spawn luck, contents, lock), which also lets a luckier player's
+    // unlock refill them.
+    private static readonly Dictionary<string, string> LootCrates = new Dictionary<string, string>
+    {
+        { "sec_box", "loot_crate_security" },
+        { "med_box", "loot_crate_medical" },
+        { "eng_box", "loot_crate_engineering" },
+        { "service_box", "loot_crate_service" },
+        { "evidence_box", "loot_crate_evidence" },
+    };
+
+    private static GameItem CreateGood(string id)
+    {
+        string crateId;
+        Func<GameItem> build;
+        if (LootCrates.TryGetValue(id, out crateId) && PreBuiltItemHelper.preBuiltItems.TryGetValue(crateId, out build))
+        {
+            return build();
+        }
+        return DirectoryMaster.Item(id, false);
     }
 
     // An item that does not fit is destroyed, not left behind.
@@ -2622,6 +2795,21 @@ public static class CartelTouristAfterSellPatch
         catch (Exception e)
         {
             Log.Error("cartel tourist line failed", e);
+        }
+    }
+}
+
+// Selling contraband or stolen goods to the cartel merchants (trader, Peer, Black Market Tourist) counts half toward the
+// security case, like vanilla's cut for its own factions (SecData.ApplyCrimeModifier: Black Market 1/2, Revolution
+// 1/3). Every sale (counter, barter) goes through this overload with the buyer.
+[HarmonyPatch(typeof(SecData), "ApplyCrimeModifier", new Type[] { typeof(StoreClient), typeof(int) })]
+public static class CartelMerchantCrimePatch
+{
+    private static void Postfix(StoreClient client, int value, ref int __result)
+    {
+        if (IaSettings.CartelEnabled && (CartelTrader.IsTrader(client) || CartelPeer.IsPeer(client) || CartelTourist.IsTourist(client)))
+        {
+            __result = Math.Min(__result, value / 2);
         }
     }
 }

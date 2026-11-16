@@ -266,9 +266,10 @@ public static class Strain
     public const long VALUE = 60;
     public const long FROZEN_VALUE = 120;
 
-    // Blending one harvested strain: 27 mL of cephalosporin C and 3 mL of protein, so 30 mL at exactly 90%.
-    public const int CEPH_UL = 27000;
-    public const int PROTEIN_UL = 3000;
+    // Blending one harvested strain: 13.5 mL of cephalosporin C and 1.5 mL of protein, so 15 mL at exactly 90%:
+    // three tablets. (Was 27 + 3 mL, six tablets; strains saved before keep what they hold.)
+    public const int CEPH_UL = 13500;
+    public const int PROTEIN_UL = 1500;
     // A clone out of the freezer is breeding stock, not product.
     public const int SEED_PROTEIN_UL = 1000;
 

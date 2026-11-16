@@ -388,11 +388,12 @@ public static class Resistance
     }
 }
 
-// Each antibiotic the player sells is booked against its own genome.
+// Each antibiotic the player sells is booked against its own genome. A Prefix: vanilla runs this when the shutter
+// opens and clears soldItemsTracker at its end, so a Postfix only ever saw an empty list.
 [HarmonyPatch(typeof(SoldItem), "HandleSoldItem")]
 public static class ResistanceSalePatch
 {
-    private static void Postfix()
+    private static void Prefix()
     {
         try
         {

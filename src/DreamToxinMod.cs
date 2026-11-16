@@ -34,6 +34,7 @@ public class DreamToxinMod : IMod
         Strain.Enable();
         Fermenter.Enable();
         FilterResidue.Enable();
+        RatMedication.Enable();
         Antibiotics.Enable();
         Resistance.Enable();
         AntibioticTestKit.Enable();
@@ -91,6 +92,7 @@ public class DreamToxinMod : IMod
         Strain.Disable();
         Fermenter.Disable();
         FilterResidue.Disable();
+        RatMedication.Disable();
         Antibiotics.Disable();
         Resistance.Disable();
         AntibioticTestKit.Disable();

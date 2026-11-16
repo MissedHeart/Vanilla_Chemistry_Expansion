@@ -420,7 +420,7 @@ public static class Antibiotics
 
     // 5 mL of cephalosporin C a tablet; base 100 at the standard purity trait, 5 more a point.
     public const int TABLET_VOLUME = 5000;
-    public const long TABLET_VALUE = 100;
+    public const long TABLET_VALUE = 60;
     public const double VALUE_PER_PURITY_POINT = 5.0;
 
     public const double LAB_PURE_PERCENT = 99.0;
@@ -688,13 +688,18 @@ public static class StrainBlendPatch
 {
     // A strain straight out of the item spawner may not have had its first tick yet: give it its identity now,
     // before vanilla empties it into the container.
-    private static void Prefix(GameItem chemicalItem)
+    // Also reads what the strain really holds (strains saved before a yield change hold the old amount), worked out
+    // the way vanilla does: rounded after the blender's loss.
+    private static void Prefix(GameItem chemicalItem, int loss, out int __state)
     {
+        __state = 0;
         try
         {
             if (Strain.IsStrain(chemicalItem))
             {
                 Strain.EnsureIdentity(chemicalItem);
+                double kept = 1.0 - Math.Max(0, Math.Min(100, loss)) / 100.0;
+                __state = (int)Math.Round(IaLiquids.Get(chemicalItem, Antibiotics.CEPH_ID) * kept, MidpointRounding.AwayFromZero);
             }
         }
         catch (Exception e)
@@ -704,7 +709,7 @@ public static class StrainBlendPatch
     }
 
     // The parameter names have to match vanilla's exactly; Harmony binds them by name.
-    private static void Postfix(GameItem chemicalItem, GameItem liquidContainer, int loss)
+    private static void Postfix(GameItem chemicalItem, GameItem liquidContainer, int loss, int __state)
     {
         try
         {
@@ -712,7 +717,7 @@ public static class StrainBlendPatch
             {
                 return;
             }
-            int added = Strain.CEPH_UL * Math.Max(0, 100 - loss) / 100;
+            int added = __state;
             if (StrainTraits.IsSeedStock(chemicalItem) || added <= 0)
             {
                 return;

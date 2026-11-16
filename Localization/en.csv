@@ -49,7 +49,7 @@ category_blended_wine,Wine Quality
 category_wine_blend,Production
 making_notes_name,Blended Wine Recipe
 making_1,"[[image:vanilla_chem_ext:blender_b|w=24|h=24|gap=6|float=left]]\n- Attach a liquid container to the Blender\n- Add anything that gives plant matter, such as edible Dream Caps, Dream Caps or Nightmare Caps\n- Blend them; Dream Cap and Nightmare Cap mush also turn into plant matter when heated\n[[section:Step 8: Make acetic acid]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- Take the container from the previous step\n- Put it on the Heating Plate\n- Boil it dry above 100°C, then dry-distill it above 150°C: the plant matter turns into acetic acid and char"
-making_2,"[[section:Step 9: Make ethyl acetate]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- Add twice as much alcohol as there is acetic acid\n- Add acid making up 1% of all the liquid\n- Heat the mix to 60-75°C: the acetic acid and alcohol form ethyl acetate"
+making_2,"[[section:Step 9: Make ethyl acetate]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- Add as much alcohol as there is acetic acid\n- Add acid making up 1% of all the liquid\n- Heat the mix to 60-75°C: the acetic acid and alcohol form ethyl acetate"
 making_3,"[[section:Step 10: Purify the product (optional)]]\n- Neutralize with base and filter out the debris with a Water Filter; the ethyl acetate, alcohol and water left can all be used as they are"
 making_4,"- Blend to 20-25% alcohol of all the liquid, with 1-2 mL of ethyl acetate per 1000 mL of liquid, and other impurities no more than 1% of the liquid"
 making_5,"[[section:Step 12: Finish]]\n[[image:vanilla_chem_ext:chem_finisher_b|w=24|h=24|gap=6|float=left]]\n- Put the container in the Chem Finisher\n- Select the Blended Wine recipe\n- Press Output\n- (Optional) Check the purity with a Composition Spectrometer\n[[gap:8]]\n[[text:Note: blended wine cannot be aged; each bottle holds 750 mL|color=#3D823F|align=center]]"
@@ -110,10 +110,10 @@ nc_notes_warning,"[[section:Warning: open only if you can neutralize it!|fill=#8
 nc_notes_1,"[[section:Step 1: Open]]\n- Pry the barrel open carefully with a Crowbar, and make sure you deal with the fission products by chemical means in the steps that follow\n- Keep the opened barrel safe: the fission products do not pour out, and never should"
 nc_notes_2,"[[gap:-4]]\n[[section:Step 2: Dissolve]]\n- Pour about 500 mL of strong acid into the barrel and wait for it to react completely. Acid must be over 98% of the non-radioactive liquid in the barrel"
 nc_notes_3,"[[section:Step 3: Adjust the oxidation state]]\n- Pour about 20 mL of Reducing Agent into the barrel"
-nc_notes_4,"[[section:Step 4: Extract]]\n- Pour in ethyl acetate twice the volume of the fission products, about 100 mL\n[[gap:4]]\n[[text:Tip: add all 100 mL at once for the best extraction|color=#3D823F|align=center]]"
+nc_notes_4,"[[section:Step 4: Extract]]\n- Pour in ethyl acetate (made in Blended Wine Recipe, steps 7-9) twice the volume of the fission products, about 100 mL\n[[gap:4]]\n[[text:Tip: add all 100 mL at once for the best extraction|color=#3D823F|align=center]]"
 nc_notes_5,"[[gap:-4]]\n[[section:Step 5: Separate]]\n- Pour the barrel's liquid into an empty, clean container. Only the plutonium extract and volatile liquids come out; acid and impurities stay in the barrel"
 nc_notes_6,"[[section:Step 6: Recover the plutonium]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- Take the container from the previous step\n- Put it on the Heating Plate\n- Heat the mix above 100°C to drive off the water, organics and alcohol"
-nc_notes_7,"[[section:Step 7: Vitrify]]\n- Repeat steps 5-6 until the barrel's liquid is used up; decay heat then takes the barrel above 300°C\n- Pour 50 mL of water glass into the barrel to melt the fission products into glass\n- The fission products are sealed in the stainless steel can and can be disposed of safely"
+nc_notes_7,"[[section:Step 7: Vitrify]]\n- Repeat steps 5-6 until the barrel's liquid is used up; decay heat then takes the barrel above 300°C\n- Pour 50 mL of water glass (made in Ore Chemistry Notes, Branch 2, steps 1-2) into the barrel to melt the fission products into glass\n- The fission products are sealed in the stainless steel can and can be disposed of safely"
 nc_notes_8,"[[section:Step 8: Plutonium]]\n[[image:vanilla_chem_ext:chem_finisher_b|w=24|h=24|gap=6|float=left]]\n- Put the container with the pure plutonium solution in the Chem Finisher and select the Plutonium Ampoule recipe\n- Press Output\n[[gap:4]]\n[[text:Tip: a Plutonium Ampoule added to any drink or wine makes a nuclear drink worth 50 credits more|color=#3D823F|align=center]]"
 nc_notes_9,"[[gap:-2]]\n[[section:Safety: protection|fill=#853737]]\n- Never spend the night with unprocessed waste, or you will catch radiation sickness that only Immunivax can cure."
 refuse_blended_wine,"That doesn't go in our cellar."
@@ -357,6 +357,10 @@ cartel_supply_cooldown,The last batch hasn't moved yet. Call back in {0} days.
 cartel_courier_name,Cartel Courier
 cartel_courier_1,Your order. Don't look at my face.
 cartel_courier_done,Delivered. I was never here.
+cartel_pack_name,{0} Pack
+cartel_pack_desc,"{1} bottles of {0}, shrink-wrapped on a cardboard tray. Double-click to unpack."
+cartel_pack_desc_left,"Shrink-wrapped {0}, already opened: {1} bottles left. Double-click to keep unpacking."
+cartel_pack_full,"No room left: {0} bottles stay in the pack."
 rep_perk_net_friends_name,Friends in High Places
 rep_perk_net_friends_desc,"Thanks to the cartel's mediation, any investigation into you can now be settled with money."
 rep_perk_net_friends_flavor,"Another day, another Security spokesperson denying any private dealings with the cartel. Everyone knows it's just an understanding."
@@ -387,12 +391,13 @@ strain_tooltip_target,"Extraction target: {0}"
 strain_tooltip_inoculate,Double-click for one strain
 strain_tooltip_seed,"Seed stock: blends to protein only"
 antibiotic_name,Antibiotic tablet
-antibiotic_desc,"Pressed from cephalosporin C. Below pharma grade nobody will take it."
+antibiotic_desc,"Pressed from cephalosporin C. Below pharma grade nobody will take it. Blended in a feed dispenser, it cures the disease of every animal in that cage overnight."
 antibiotic_flavor,"One sheet of tablets, the far end of a whole production line."
 antibiotic_grade_lab,Lab pure
 antibiotic_grade_pharma,Pharma grade
 antibiotic_grade_reject,Off-spec
 antibiotic_tooltip_genome,"Genome: {0}"
+rat_medication_tooltip,"Antibiotic in the feed: cures the animals in this cage tonight"
 antibiotic_tooltip_target,"Extraction target: {0}"
 antibiotic_tooltip_resistance,"Resistance has set in: {0}% off the price"
 antibiotic_tooltip_sales,"Cumulative sales for this genome: {0}"
