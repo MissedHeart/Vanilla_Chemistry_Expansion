@@ -89,16 +89,20 @@ public static class GuideBook
             ConfigureChrome(book);
             book.pages.Clear();
             string bookTitle = Localized("guide_book_name");
+            List<Bookmark> marks = new List<Bookmark>();
+            marks.Add(new Bookmark("cover", 0));
             AddPage(book, bookTitle, null, Localized("guide_book_intro"), true);
             foreach (HandNote note in Notes.All)
             {
+                marks.Add(new Bookmark(note.NameKey, book.pages.Count));
                 AddNote(
                     book,
                     bookTitle,
                     Localized(note.NameKey),
                     Lines(DreamToxinMod.MOD_ID, note.LineKeys));
             }
-            AddExternalSections(book);
+            AddExternalSections(book, marks);
+            AddBookmarks(book, marks);
             // No PaperItemData: the paper registry would add the item to the directory only after every
             // other mod (item spawners included) has read it. CreateItem registers it with our other items.
             book.item = null;
@@ -119,7 +123,7 @@ public static class GuideBook
     }
 
     // Sections contributed by other enabled mods, in load order.
-    private static void AddExternalSections(PaperBookData book)
+    private static void AddExternalSections(PaperBookData book, List<Bookmark> marks)
     {
         foreach (LoadedMod mod in ModLoader.Mods)
         {
@@ -150,6 +154,7 @@ public static class GuideBook
             }
             if (lines.Count > 0)
             {
+                marks.Add(new Bookmark("ext", book.pages.Count));
                 AddNote(book, Localized("guide_book_name"), title, lines);
             }
         }
@@ -834,9 +839,25 @@ public static class GuideBook
         int columns = TableColumnCount(table);
         float tableX = table.XSet ? table.X : BODY_LEFT;
         float tableWidth = table.Width > 0f ? table.Width : BODY_WIDTH;
-        float cellWidth = Math.Max(
-            1f,
-            (tableWidth - table.CellGap * Math.Max(0, columns - 1)) / columns);
+        float usable = Math.Max(
+            columns,
+            tableWidth - table.CellGap * Math.Max(0, columns - 1));
+        float[] widths = new float[columns];
+        float[] lefts = new float[columns];
+        float weightSum = 0f;
+        bool weighted = table.ColumnWeights.Count == columns;
+        for (int columnIndex = 0; columnIndex < columns; columnIndex++)
+        {
+            weightSum += weighted ? table.ColumnWeights[columnIndex] : 1f;
+        }
+        float left = tableX;
+        for (int columnIndex = 0; columnIndex < columns; columnIndex++)
+        {
+            float weight = weighted ? table.ColumnWeights[columnIndex] : 1f;
+            widths[columnIndex] = Math.Max(1f, usable * weight / weightSum);
+            lefts[columnIndex] = left;
+            left += widths[columnIndex] + table.CellGap;
+        }
         float rowY = currentY;
         for (int rowIndex = 0; rowIndex < table.Rows.Count; rowIndex++)
         {
@@ -844,8 +865,8 @@ public static class GuideBook
             float rowHeight = TableRowHeight(table, row);
             for (int columnIndex = 0; columnIndex < columns; columnIndex++)
             {
-                float cellX = tableX
-                    + columnIndex * (cellWidth + table.CellGap);
+                float cellX = lefts[columnIndex];
+                float cellWidth = widths[columnIndex];
                 string cellId = id + "_r" + rowIndex + "_c" + columnIndex;
                 page.elements.Add(ImageElement(
                     cellId + "_fill",
@@ -1592,6 +1613,12 @@ public static class GuideBook
         ParseListInto(
             GetOption(options, "align"),
             table.Aligns);
+        List<string> weights = new List<string>();
+        ParseListInto(GetOption(options, "cols"), weights);
+        foreach (string weight in weights)
+        {
+            table.ColumnWeights.Add(Math.Max(0.01f, ParseFloat(weight, 1f)));
+        }
     }
 
     private static TableRow ParseTableRow(string payload)
@@ -1904,6 +1931,127 @@ public static class GuideBook
         ApplyGameButton(paper, "close", "paper_buttons_close1");
         ApplyGameButton(paper, "zoom", "paper_buttons_screen_0");
         ApplyCrispImages(paper);
+        BindBookmarks(paper);
+    }
+
+    // Bookmarks: a coloured tab per chapter sticking out of the notebook's right edge (art/bookmarks). They are chrome
+    // buttons, so they show on every page; clicking one flips to the chapter's first page, and the chapter being read
+    // has its tab pulled out further. The sprites are twice the design size (the icons are pasted at screen pixels).
+    private const float TAB_X = 314f;
+    private const float TAB_WIDTH = 22f;
+    private const float TAB_WIDTH_ON = 28f;
+    private const float TAB_HEIGHT = 27f;
+    private const float TAB_TOP = 20f;
+    private const float TAB_BOTTOM = 382f;
+    private const float TAB_STEP = 30f;
+    private const string TAB_PREFIX = "vce_tab_";
+
+    private sealed class Bookmark
+    {
+        internal readonly string Key;
+        internal readonly int Page;
+
+        internal Bookmark(string key, int page)
+        {
+            Key = key;
+            Page = page;
+        }
+    }
+
+    private static List<Bookmark> bookmarks = new List<Bookmark>();
+
+    private static string TabSprite(Bookmark mark, bool on)
+    {
+        return DreamToxinMod.MOD_ID + ":" + TAB_PREFIX + mark.Key + (on ? "_on" : string.Empty);
+    }
+
+    private static void AddBookmarks(PaperBookData book, List<Bookmark> marks)
+    {
+        bookmarks = marks;
+        if (book.chrome == null || marks.Count == 0)
+        {
+            return;
+        }
+        // More chapters than fit at the normal spacing: the tabs overlap like stacked index dividers.
+        float step = marks.Count < 2
+            ? TAB_STEP
+            : Math.Min(TAB_STEP, (TAB_BOTTOM - TAB_TOP - TAB_HEIGHT) / (marks.Count - 1));
+        for (int index = 0; index < marks.Count; index++)
+        {
+            PaperElementData tab = new PaperElementData();
+            tab.type = "button";
+            tab.id = TAB_PREFIX + index;
+            tab.action = TAB_PREFIX + index;
+            tab.sprite = TabSprite(marks[index], false);
+            tab.x = TAB_X;
+            tab.y = TAB_TOP + index * step;
+            tab.w = TAB_WIDTH;
+            tab.h = TAB_HEIGHT;
+            tab.text = string.Empty;
+            book.chrome.Add(tab);
+        }
+    }
+
+    // Opening the book: hook each tab's action (PaperUI clears actions between openings) and mark the current chapter.
+    private static void BindBookmarks(PaperUI paper)
+    {
+        try
+        {
+            for (int index = 0; index < bookmarks.Count; index++)
+            {
+                int page = bookmarks[index].Page;
+                paper.OnAction(TAB_PREFIX + index, delegate
+                {
+                    paper.FlipTo(page);
+                });
+            }
+            paper.PageShown -= UpdateBookmarks;
+            paper.PageShown += UpdateBookmarks;
+            UpdateBookmarks(paper, paper.CurrentPage);
+        }
+        catch (Exception e)
+        {
+            Log.Error("handbook bookmarks failed", e);
+        }
+    }
+
+    private static void UpdateBookmarks(PaperUI paper, int pageIndex)
+    {
+        if (paper == null)
+        {
+            return;
+        }
+        int current = 0;
+        for (int index = 0; index < bookmarks.Count; index++)
+        {
+            if (bookmarks[index].Page <= pageIndex)
+            {
+                current = index;
+            }
+        }
+        for (int index = 0; index < bookmarks.Count; index++)
+        {
+            CustomUIElement tab = paper.Get(TAB_PREFIX + index);
+            if (tab == null || tab.image == null)
+            {
+                continue;
+            }
+            bool on = index == current;
+            Sprite sprite = PaperAssets.Resolve(TabSprite(bookmarks[index], on), DreamToxinMod.MOD_ID, true);
+            if (sprite != null)
+            {
+                if (sprite.texture != null)
+                {
+                    sprite.texture.filterMode = FilterMode.Point;
+                    sprite.texture.anisoLevel = 0;
+                }
+                tab.image.sprite = sprite;
+                tab.image.preserveAspect = false;
+            }
+            RectTransform rect = tab.image.rectTransform;
+            rect.sizeDelta = new Vector2(on ? TAB_WIDTH_ON : TAB_WIDTH, rect.sizeDelta.y);
+            tab.image.SetAllDirty();
+        }
     }
 
     private static void UpdateCompactPageIndicator(PaperUI paper, int pageIndex)
@@ -2289,6 +2437,8 @@ public static class GuideBook
         internal readonly List<string> ColumnFills = new List<string>();
         internal readonly List<string> ColumnColors = new List<string>();
         internal readonly List<string> Aligns = new List<string>();
+        // Relative column widths ("cols=1,2"); empty or the wrong count means equal columns.
+        internal readonly List<float> ColumnWeights = new List<float>();
         internal readonly List<TableRow> Rows = new List<TableRow>();
     }
 

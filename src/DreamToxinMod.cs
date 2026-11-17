@@ -884,7 +884,7 @@ public static class Notes
         Tag = "VCE_ANTIBIOTIC_NOTES_TAG",
         NameKey = "antibiotic_notes_name",
         TitleKey = "antibiotic_notes_name",
-        LineKeys = new string[] { "abx_1", "abx_2", "abx_3" }
+        LineKeys = new string[] { "abx_1", "abx_2", "abx_traits", "abx_3" }
     };
 
     public static readonly HandNote[] All = new HandNote[] { ToxinFormula, OreNotes, WineMaking, WineSelling, BeerBrewing, BeerTable, Reprocessing, CrackineNotes, LanternNotes, ElectrolysisNotes, AntibioticNotes };
