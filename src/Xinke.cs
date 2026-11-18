@@ -375,15 +375,7 @@ public static class Xinke
         return null;
     }
 
-    // ---- shops and debug ---------------------------------------------------------------------------------------
-
-    public static void OfferSeeds()
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            PlayerStore.Instance.AddDirectSellingItemToTable(CreateSeed(), false, false, false, 0);
-        }
-    }
+    // ---- shops and debug (the seeds are sold by the Cartel Vendor, CartelVendor.cs) ----------------------------
 
     public static void OfferLeaves()
     {
@@ -436,15 +428,10 @@ public static class XinkeMachineSpritePatch
     }
 }
 
-// The retired farmer (vanilla seed seller) also brings two Xinke seeds.
-[HarmonyPatch(typeof(StoreClientListSpec), "CreateRetiredFarmer")]
+// Adds goods to a vanilla client's stock: they go on the counter after its own (when its main dialogue ends).
+// Xinke seeds used to come from the retired farmer; they are now sold by the Cartel Vendor (CartelVendor.cs).
 public static class XinkeRetiredFarmerPatch
 {
-    private static void Postfix(StoreClient __result)
-    {
-        AppendToStock(__result, Xinke.OfferSeeds, "retired farmer");
-    }
-
     public static void AppendToStock(StoreClient client, Action offer, string who)
     {
         try

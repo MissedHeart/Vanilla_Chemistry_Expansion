@@ -29,9 +29,6 @@ public static class Electrolyzer
     // Quality +-100 changes every product by +-50%.
     public const double QUALITY_SPAN = 0.5;
 
-    // Dr. Jackson: always while the player has none, otherwise 25% per restock (like his storage bays).
-    public const int RESTOCK_CHANCE_OWNED = 25;
-
     private class Slots
     {
         public GameSlotInventory Battery;
@@ -56,7 +53,6 @@ public static class Electrolyzer
 
     public static void Enable()
     {
-        ModHook.OnPlaceInventorInventoryItemEarly += OnPlaceInventorInventory;
         ModHook.OnGameLoadedLate += FixLoadedItems;
         try
         {
@@ -71,7 +67,6 @@ public static class Electrolyzer
 
     public static void Disable()
     {
-        ModHook.OnPlaceInventorInventoryItemEarly -= OnPlaceInventorInventory;
         ModHook.OnGameLoadedLate -= FixLoadedItems;
     }
 
@@ -309,26 +304,14 @@ public static class Electrolyzer
         Log.Info("electrolyzer: " + amount + " uL salt -> " + baseMade + " uL base, " + gas + " uL each of hydrogen and chlorine");
     }
 
-    // ---- Dr. Jackson ---------------------------------------------------------------------------------------------
+    // ---- for sale (the Cartel Vendor, CartelVendor.cs) ------------------------------------------------------------
 
-    public static void OnPlaceInventorInventory(List<GameItem> ownedItems)
+    public static GameItem CreateForSale()
     {
-        try
-        {
-            bool owned = ownedItems != null && ownedItems.Exists(i => IsElectrolyzer(i));
-            if (owned && !RNG.Roll(RESTOCK_CHANCE_OWNED))
-            {
-                return;
-            }
-            GameItem machine = DirectoryMaster.Item(ITEM_ID, false);
-            // DirectoryMaster.Item strips child items from new items, so the canisters and manual go in afterwards.
-            AddCanisters(machine, false);
-            PlayerStore.Instance.AddDirectSellingItemToTable(machine, false, false, false, 0);
-        }
-        catch (Exception e)
-        {
-            Log.Error("offering the electrolyzer failed", e);
-        }
+        GameItem machine = DirectoryMaster.Item(ITEM_ID, false);
+        // DirectoryMaster.Item strips child items from new items, so the canisters and manual go in afterwards.
+        AddCanisters(machine, false);
+        return machine;
     }
 
     private static void AddCanisters(GameItem machine, bool owned)

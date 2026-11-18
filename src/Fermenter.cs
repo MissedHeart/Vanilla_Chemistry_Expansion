@@ -35,10 +35,6 @@ public static class Fermenter
     public const string STOCKED_TAG = "VCE_FERMENTER_STOCKED_TAG";
     public const string TURBO_ELIGIBLE_TAG = "TURBO_BOOST_ELIGIBLE_TAG";
 
-    // Dr. Jackson: always while the player has none, otherwise 25% per restock.
-    public const int RESTOCK_CHANCE_OWNED = 25;
-    // The retired chemist brings one when the player has none.
-    public const int CHEMIST_CHANCE_OWNED = 20;
 
     public const int OUTPUT_WIDTH = 9;
     public const int OUTPUT_HEIGHT = 6;
@@ -57,7 +53,6 @@ public static class Fermenter
 
     public static void Enable()
     {
-        ModHook.OnPlaceInventorInventoryItemEarly += OnPlaceInventorInventory;
         ModHook.OnGameLoadedLate += FixLoadedItems;
         ModHook.OnCreateTooltipLate += OnCreateTooltip;
         try
@@ -73,7 +68,6 @@ public static class Fermenter
 
     public static void Disable()
     {
-        ModHook.OnPlaceInventorInventoryItemEarly -= OnPlaceInventorInventory;
         ModHook.OnGameLoadedLate -= FixLoadedItems;
         ModHook.OnCreateTooltipLate -= OnCreateTooltip;
     }
@@ -501,49 +495,13 @@ public static class Fermenter
         return note;
     }
 
-    public static void OnPlaceInventorInventory(List<GameItem> ownedItems)
+    // For sale (the Cartel Vendor, CartelVendor.cs): the machine with its feed dispenser and manual inside.
+    public static GameItem CreateForSale()
     {
-        try
-        {
-            bool owned = ownedItems != null && ownedItems.Exists(i => IsFermenter(i));
-            if (owned && !RNG.Roll(RESTOCK_CHANCE_OWNED))
-            {
-                return;
-            }
-            Offer(false);
-        }
-        catch (Exception e)
-        {
-            Log.Error("offering the fermenter failed", e);
-        }
-    }
-
-    // The retired chemist's stock (Strain.cs hooks him for strains, this for the machine).
-    public static void OfferToChemist()
-    {
-        try
-        {
-            foreach (GameItem item in EmporiumEntry.Instance.GetAllItems())
-            {
-                if (IsFermenter(item) && GeneralHelper.IsItemOwned(item) && !RNG.Roll(CHEMIST_CHANCE_OWNED))
-                {
-                    return;
-                }
-            }
-            Offer(false);
-        }
-        catch (Exception e)
-        {
-            Log.Error("offering the fermenter to the retired chemist failed", e);
-        }
-    }
-
-    private static void Offer(bool owned)
-    {
-        GameItem machine = DirectoryMaster.Item(ITEM_ID, owned);
+        GameItem machine = DirectoryMaster.Item(ITEM_ID, false);
         // DirectoryMaster.Item strips child items from new items, so the fixtures go in afterwards.
-        AddFixtures(machine, owned);
-        PlayerStore.Instance.AddDirectSellingItemToTable(machine, false, false, false, 0);
+        AddFixtures(machine, false);
+        return machine;
     }
 
     // Vanilla marks only the bought machine as owned; pass it on to the fixtures inside.
@@ -694,54 +652,3 @@ public static class FermenterOwnershipPatch
     }
 }
 
-// The retired chemist sells the fermenter and, now and then, a strain; the retired farmer sells strains too.
-[HarmonyPatch(typeof(StoreClientListSpec), "CreateRetiredChemist")]
-public static class FermenterChemistPatch
-{
-    private static void Postfix(StoreClient __result)
-    {
-        XinkeRetiredFarmerPatch.AppendToStock(__result, OfferStock, "retired chemist (antibiotics)");
-    }
-
-    private static void OfferStock()
-    {
-        Fermenter.OfferToChemist();
-        StrainShop.OfferStrain();
-    }
-}
-
-[HarmonyPatch(typeof(StoreClientListSpec), "CreateRetiredFarmer")]
-public static class StrainFarmerPatch
-{
-    private static void Postfix(StoreClient __result)
-    {
-        XinkeRetiredFarmerPatch.AppendToStock(__result, StrainShop.OfferStrain, "retired farmer (antibiotics)");
-    }
-}
-
-// Both retired specialists have a one-in-five chance of bringing a strain along.
-public static class StrainShop
-{
-    public const int CHANCE = 20;
-
-    public static void OfferStrain()
-    {
-        try
-        {
-            if (!RNG.Roll(CHANCE))
-            {
-                return;
-            }
-            GameItem strain = Strain.Spawn(false, null, false);
-            if (strain != null)
-            {
-                PlayerStore.Instance.AddDirectSellingItemToTable(strain, false, false, false, 0);
-                Log.Info("a strain is on offer: genome " + StrainTraits.Genome(strain));
-            }
-        }
-        catch (Exception e)
-        {
-            Log.Error("offering a strain failed", e);
-        }
-    }
-}

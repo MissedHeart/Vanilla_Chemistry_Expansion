@@ -35,6 +35,8 @@ public class DreamToxinMod : IMod
         Fermenter.Enable();
         FilterResidue.Enable();
         RatMedication.Enable();
+        PortraitPreview.Enable();
+        CartelVendor.Enable();
         Antibiotics.Enable();
         Resistance.Enable();
         AntibioticTestKit.Enable();
@@ -53,7 +55,6 @@ public class DreamToxinMod : IMod
         ModHook.OnGameLoadedInit += RefreshLocalizedNames;
         ModHook.OnGameLoadedLate += ToxinSprite.FixLoadedItems;
         ModHook.OnGameLoadedLate += OreItems.FixLoadedItems;
-        ModHook.OnPlaceInventorInventoryItemEarly += GuideBook.OnPlaceInventorInventory;
         try
         {
             // "Modding" is one of the debug panel's fixed categories; unknown ones fall back to "Special".
@@ -80,7 +81,6 @@ public class DreamToxinMod : IMod
         ModHook.OnGameLoadedInit -= RefreshLocalizedNames;
         ModHook.OnGameLoadedLate -= ToxinSprite.FixLoadedItems;
         ModHook.OnGameLoadedLate -= OreItems.FixLoadedItems;
-        ModHook.OnPlaceInventorInventoryItemEarly -= GuideBook.OnPlaceInventorInventory;
         Content.Unregister();
         StarchGenesSetup.Disable();
         IndustrialAlcohol.Disable();
@@ -93,6 +93,8 @@ public class DreamToxinMod : IMod
         Fermenter.Disable();
         FilterResidue.Disable();
         RatMedication.Disable();
+        PortraitPreview.Disable();
+        CartelVendor.Disable();
         Antibiotics.Disable();
         Resistance.Disable();
         AntibioticTestKit.Disable();
@@ -482,6 +484,8 @@ public static class ToxinProduct
     public const string ITEM_ID = "dream_toxin.injector";
     public const int REQUIRED_VOLUME = 5000;
     public const long BASE_VALUE = 150L;
+    // A cosmetic treatment for the Upper Level: medical and luxury at once.
+    public const string LUXURY_TYPE = "LUXURY_ITEM";
 
     public static GameItem CreateInjector()
     {
@@ -498,6 +502,7 @@ public static class ToxinProduct
             item.EnableTag("ITEM_MEDICAL_TAG", false);
             item.EnableProficiency("MEDICAL_PROFICIENCY");
             item.SetGameItemType("MEDICAL");
+            item.SetGameItemType(LUXURY_TYPE);
             ChemicalHelper.InitChemItem(item, true, true);
             // Default contents for items not made in the Chem Finisher (debug spawns, shops).
             ChemFinisherRecipe.SetCompositionByPurity(item, 90, 96, REQUIRED_VOLUME, ToxinLiquid.ID);
@@ -694,7 +699,7 @@ public static class ToxinSprite
     {
         try
         {
-            int count = 0;
+            int count = 0, luxury = 0;
             foreach (GameItem item in EmporiumEntry.Instance.GetAllItems())
             {
                 if (IsToxin(item) && (!item.useSpriteFromMod || item.spriteAtlasPath != DreamToxinMod.MOD_ID || item.spritePath != KEY))
@@ -702,10 +707,20 @@ public static class ToxinSprite
                     Apply(item);
                     count++;
                 }
+                // Item types are saved with the item: injectors from before 1.8.2 lack the luxury type.
+                if (IsToxin(item) && !item.IsGameItemType(ToxinProduct.LUXURY_TYPE))
+                {
+                    item.SetGameItemType(ToxinProduct.LUXURY_TYPE);
+                    luxury++;
+                }
             }
             if (count > 0)
             {
                 Log.Info("updated the sprite of " + count + " saved injector(s)");
+            }
+            if (luxury > 0)
+            {
+                Log.Info("marked " + luxury + " saved injector(s) as luxury items");
             }
         }
         catch (Exception e)
@@ -888,36 +903,6 @@ public static class Notes
     };
 
     public static readonly HandNote[] All = new HandNote[] { ToxinFormula, OreNotes, WineMaking, WineSelling, BeerBrewing, BeerTable, Reprocessing, CrackineNotes, LanternNotes, ElectrolysisNotes, AntibioticNotes };
-}
-
-// The retired chemist always brings the advanced chemistry handbook while the player has none.
-[HarmonyPatch(typeof(StoreClientListSpec), "CreateRetiredChemist")]
-public static class RetiredChemistPatch
-{
-    private static void Postfix(StoreClient __result)
-    {
-        try
-        {
-            if (__result == null || __result.mainDialogue == null)
-            {
-                return;
-            }
-            Dialogue dialogue = __result.mainDialogue;
-            Action vanilla = dialogue.endAction;
-            dialogue.endAction = delegate
-            {
-                if (vanilla != null)
-                {
-                    vanilla();
-                }
-                GuideBook.OfferIfUnowned();
-            };
-        }
-        catch (Exception e)
-        {
-            Log.Error("retired chemist patch failed", e);
-        }
-    }
 }
 
 public static class DebugKit

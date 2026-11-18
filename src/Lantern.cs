@@ -430,15 +430,7 @@ public static class Lantern
         return 1;
     }
 
-    // ---- shops and debug ----------------------------------------------------------------------------------------
-
-    public static void OfferSeeds()
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            PlayerStore.Instance.AddDirectSellingItemToTable(CreateSeed(), false, false, false, 0);
-        }
-    }
+    // ---- debug (the seeds are sold by the Cartel Vendor, CartelVendor.cs) ----------------------------------------
 
     public static void SpawnKit()
     {
@@ -511,16 +503,6 @@ public static class LanternMachineSpritePatch
         }
         __result = sprite;
         return false;
-    }
-}
-
-// The retired farmer also brings two Hollow's Lantern seeds, like the Xinke seeds.
-[HarmonyPatch(typeof(StoreClientListSpec), "CreateRetiredFarmer")]
-public static class LanternRetiredFarmerPatch
-{
-    private static void Postfix(StoreClient __result)
-    {
-        XinkeRetiredFarmerPatch.AppendToStock(__result, Lantern.OfferSeeds, "retired farmer (Lantern)");
     }
 }
 

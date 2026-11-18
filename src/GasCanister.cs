@@ -47,9 +47,6 @@ public static class GasCanister
     // Hydrogen chloride dissolves until acid makes up 40% of the liquid: acid <= other liquids x 2/3.
     public const double SOLUBILITY = 0.4;
 
-    // The retired chemist sometimes has one.
-    public const int CHEMIST_CHANCE = 20;
-
     public static void Enable()
     {
         ModHook.OnCreateTooltipLate += OnCreateTooltip;
@@ -500,12 +497,10 @@ public static class GasCanister
         }
     }
 
-    public static void OfferFromChemist()
+    // An empty canister for sale (the Cartel Vendor, CartelVendor.cs).
+    public static GameItem CreateForSale()
     {
-        if (RNG.Roll(CHEMIST_CHANCE))
-        {
-            PlayerStore.Instance.AddDirectSellingItemToTable(DirectoryMaster.Item(ITEM_ID, false), false, false, false, 0);
-        }
+        return DirectoryMaster.Item(ITEM_ID, false);
     }
 
     // gasA alone fills the canister; gasA + gasB fill half each.
@@ -606,15 +601,5 @@ public static class CanisterVentLabelPatch
         {
             Log.Error("vent label failed", e);
         }
-    }
-}
-
-// The retired chemist sometimes brings an empty canister.
-[HarmonyPatch(typeof(StoreClientListSpec), "CreateRetiredChemist")]
-public static class CanisterRetiredChemistPatch
-{
-    private static void Postfix(StoreClient __result)
-    {
-        XinkeRetiredFarmerPatch.AppendToStock(__result, GasCanister.OfferFromChemist, "retired chemist (gas canister)");
     }
 }

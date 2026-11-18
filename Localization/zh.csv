@@ -259,15 +259,15 @@ electrolysis_3,"[[section:第3步：混气]]\n- 移动氢气罐到氯气罐上�
 electrolysis_4,"[[section:第4步：制备氯化氢]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- 取下上一步使用的混合气罐\n- 将其放入加热板\n- 加热至 120°C 以上，氢气和氯气将按 1:1 燃烧成两倍体积的氯化氢"
 electrolysis_5,"[[section:第5步：溶解制备浓酸/稀酸]]\n- 移动氯化氢罐到盛有水的容器上，可溶解生成盐酸\n- 最多可溶解使酸占液体总量的 40%（即500 毫升水最多溶 333 毫升酸），多余的气体会保留在原罐里\n- 需要制取稀酸时，可用滴管、量筒取浓盐酸兑水稀释\n[[gap:4]]\n[[text:注意：往盛有碱的容器里倾倒氯化氢时，酸会与碱中和消耗|color=#853737|align=center]]"
 electrolysis_6,"[[section:第6步：回收碱液]]\n[[image:vanilla_chem_ext:evaporator_b|w=24|h=24|gap=6|float=left]]\n- 取下第2步中，电解后的盐水容器\n- （可选）使用滤水器过滤，除去泥土、矿物质等物理污染物\n- 将容器放入蒸发器\n- 确保蒸发器装有能量电池供电\n- 等到第二天，让蒸发器完成处理"
-electrolysis_7,"[[section:附录：原料介绍]]\n- 盐矿石可通过电话向 GP 矿业订购（6 块 1 天送到；12 块 2 天送到，累计花满 350 后解锁服务）\n- 任何搅拌机都能打碎盐矿石，每块产出约 80 毫升食盐、少量泥土和矿物质\n- 退休化学家偶尔会出售空气罐\n- 气罐最多装 5 升，右键可以放气"
-electrolysis_8,"[[section:附录：机器介绍]]\n[[text:<u>电解机</u>|align=left|size=9]]\n[[gap:8]]\n[[image:vanilla_chem_ext:icon_electrolyzer|w=24|h=24|gap=6|float=left]]\n- 杰克逊博士出售，自带两个空气罐\n- 机器左侧可安装电池，中间可放入盐水容器，右侧上方是产物 A（氢气），右侧下方是产物 B（氯气）\n- 机器每晚电解消耗 240 毫升食盐（此数值随机器性能同步上升）\n- 机器电解时，每消耗 1 毫升食盐需消耗 0.3 毫升水，并在原容器里生成 1 毫升碱，同时产生氢气和氯气各 0.5 毫升\n- 缺盐、缺水、缺电或气罐装满时，机器停止运行\n- 机器质量从 -100 升至 +100 时，产物生成倍率从 x0.5 升至 x1.5"
+electrolysis_7,"[[section:附录：原料介绍]]\n- 盐矿石可通过电话向 GP 矿业订购（6 块 1 天送到；12 块 2 天送到，累计花满 350 后解锁服务）\n- 任何搅拌机都能打碎盐矿石，每块产出约 80 毫升食盐、少量泥土和矿物质\n- 卡特尔小贩出售空气罐\n- 气罐最多装 5 升，右键可以放气"
+electrolysis_8,"[[section:附录：机器介绍]]\n[[text:<u>电解机</u>|align=left|size=9]]\n[[gap:8]]\n[[image:vanilla_chem_ext:icon_electrolyzer|w=24|h=24|gap=6|float=left]]\n- 卡特尔小贩出售，自带两个空气罐\n- 机器左侧可安装电池，中间可放入盐水容器，右侧上方是产物 A（氢气），右侧下方是产物 B（氯气）\n- 机器每晚电解消耗 240 毫升食盐（此数值随机器性能同步上升）\n- 机器电解时，每消耗 1 毫升食盐需消耗 0.3 毫升水，并在原容器里生成 1 毫升碱，同时产生氢气和氯气各 0.5 毫升\n- 缺盐、缺水、缺电或气罐装满时，机器停止运行\n- 机器质量从 -100 升至 +100 时，产物生成倍率从 x0.5 升至 x1.5"
 electrolysis_9,"[[omit]]"
 lantern_notes_name,失能剂制取笔记
 lantern_1,"[[section:第1步：原料准备]]\n[[image:vanilla_chem_ext:blender_b|w=24|h=24|gap=6|float=left]]\n- 将液体容器接到搅拌机上\n- 加入若干空心灯\n- 搅拌原料，制成辣椒素"
 lantern_2,"[[section:第2步：萃取]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- 取下上一步使用的容器\n- 将其放入加热板\n- 加入相当于辣椒素4倍体积的酒精\n- 将混合物加热至50°C以上，使辣椒素转化成辣酯\n[[gap:4]]\n[[text:注意：酒精体积不足4倍时，萃取过程会产出物理污染物，污染物比例 =（4 − 酒精/辣椒素）/ 4|color=#853737]]\n[[gap:4]]\n[[text:提示：转化过程中，每份辣椒素消耗0.1份酒精。酒精的沸点是78°C，温度过高会产生损耗，最好保持在50–78°C|color=#3D823F|align=center]]"
 lantern_3,"[[section:第3步：蒸发]]\n[[image:vanilla_chem_ext:evaporator_b|w=24|h=24|gap=6|float=left]]\n- （可选）使用滤水器过滤，除去物理污染物\n- 将容器放入蒸发器\n- 确保蒸发器装有能量电池供电\n- 等到第二天，让蒸发器完成处理"
 lantern_4,"[[section:第4步：成型封装]]\n[[image:vanilla_chem_ext:chem_finisher_b|w=24|h=24|gap=6|float=left]]\n- （必需）待酒精全部蒸发后，将容器放入化学制剂成型机\n- 选择“失能剂”配方\n- 按下“输出”按钮\n- （可选）使用成分光谱仪检查纯度"
-lantern_5,"[[page]]\n[[section:附录：原料介绍]]\n- 空心灯种子由退休农夫出售\n- 空心灯为一年生植物，收获时会返还一颗种子\n- 空心灯生长过程中会消耗大量营养，根系会污染其所在环境"
+lantern_5,"[[page]]\n[[section:附录：原料介绍]]\n- 空心灯种子由卡特尔小贩出售\n- 空心灯为一年生植物，收获时会返还一颗种子\n- 空心灯生长过程中会消耗大量营养，根系会污染其所在环境"
 lantern_6,"[[section:附录：产物介绍]]\n- 失能剂是合法商品，上层区和治安部都会采购，雇佣兵往往也有购买意向\n- 下层区和革命军，以及大多数普通人拒绝采购这种商品"
 lantern_7,"- 向上层区和治安部售出失能剂时，治安档案里的罪名会被冲减。具体计算逻辑为 成交价×纯度×5，最严重的罪名会优先抵减"
 lantern_8,"- 罪名清零后继续售出失能剂时，上述计算逻辑每满100点将降低1点调查进度"
@@ -427,3 +427,6 @@ filter_residue_tooltip,滤渣：{0}
 filter_residue_part,{0} {1} 毫升
 filter_residue_separator,、
 filter_residue_hint,拖到容器上倒出，拖到排水口倒掉
+cartel_vendor_name,卡特尔小贩
+cartel_vendor_line_1,这周的货。
+cartel_vendor_line_2,要什么自己挑，价钱不还。

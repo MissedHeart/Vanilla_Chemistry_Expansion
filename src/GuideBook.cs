@@ -2512,25 +2512,10 @@ public static class GuideBook
         return item;
     }
 
-    // Puts one handbook on the current seller's table (retired chemist, Dr. Jackson) unless the player has one.
-    public static void OfferIfUnowned()
+    // A handbook for sale (the Cartel Vendor, CartelVendor.cs), or null when the player already owns one.
+    public static GameItem CreateForSaleIfUnowned()
     {
-        try
-        {
-            if (PlayerOwnsOne())
-            {
-                return;
-            }
-            GameItem book = DirectoryMaster.Item(ITEM_ID, true);
-            if (book != null)
-            {
-                PlayerStore.Instance.AddDirectSellingItemToTable(book, false, false, false, 0);
-            }
-        }
-        catch (Exception e)
-        {
-            Log.Error("offering the handbook failed", e);
-        }
+        return PlayerOwnsOne() ? null : DirectoryMaster.Item(ITEM_ID, true);
     }
 
     // ModHook.OnNewGameStarted fires after vanilla has placed the starting items; the chemist start
@@ -2556,12 +2541,6 @@ public static class GuideBook
         {
             Log.Error("giving the chemist start handbook failed", e);
         }
-    }
-
-    // ModHook.OnPlaceInventorInventoryItemEarly: Dr. Jackson's regular and special stock.
-    public static void OnPlaceInventorInventory(List<GameItem> ownedItems)
-    {
-        OfferIfUnowned();
     }
 
     public static bool PlayerOwnsOne()

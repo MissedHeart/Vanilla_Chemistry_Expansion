@@ -14,7 +14,7 @@
 - **核废料后处理**：撬开核废料，萃取钚做成钚安瓿，玻璃固化裂变产物，小心辐射病。
 - **空心灯与失能剂**：种植实验室辣椒，提纯成合法的失能剂，卖给上层区和治安部能冲减罪名和调查进度。
 - **电解食盐水**：订购盐矿、电解食盐水得到碱、氢气和氯气，混气加热合成氯化氢，再溶成盐酸，批量自制纯净的酸碱。
-- **进阶化学手册**：所有工艺步骤都在这本手册里，化学家开局直接送一本，退休化学家和杰克逊博士也出售。
+- **进阶化学手册**：所有工艺步骤都在这本手册里，化学家开局直接送一本，卡特尔小贩也出售。
 
 ---
 
@@ -57,7 +57,7 @@
 
 ### 配方
 
-制取步骤收录在**进阶化学手册**里：只要你还没有这本手册，**退休化学家**每次来店、**杰克逊博士**的商店每次都会出售一本。退休化学家每周第 2 天来店，需要化学家开局或人脉网络的“退休化学家”升级。
+制取步骤收录在**进阶化学手册**里：只要你还没有这本手册，**卡特尔小贩**（第 5 天第一次来店，之后每 7 天一次）每次都会出售一本。
 
 ---
 
@@ -225,7 +225,7 @@
 
 ## 九、空心灯与失能剂
 
-- **作物**：空心灯，一年生，生长进度 24，每次收获 8 颗（按健康度分小、中、大），返还一颗种子。营养目标 320、容差 50、消耗 60，用水 100，污染敏感度 1.15。自带“辣素产出 III”和“污染水源 I”。退休农夫每次来店带两颗种子。
+- **作物**：空心灯，一年生，生长进度 24，每次收获 8 颗（按健康度分小、中、大），返还一颗种子。营养目标 320、容差 50、消耗 60，用水 100，污染敏感度 1.15。自带“辣素产出 III”和“污染水源 I”。卡特尔小贩每次来店带两颗种子。
 - **辣椒素**：打碎只得到辣椒素，没有水和蛋白质。“辣素产出”1 级每颗中号 0.5 毫升，按等级的 0.75 次方增长，天生 3 级约 1.14 毫升；小号 ×0.6，大号 ×1.5。
 - **辣酯**：容器里有辣椒素和酒精、温度 ≥ 50°C 时，每次结算转化 5% 的辣椒素（至少 200 微升），每份消耗 0.1 份酒精。酒精少于辣椒素的 4 倍时，转化的部分里有 (4 − 酒精/辣椒素) ÷ 4 变成物理污染物（可以过滤）。酒精 78°C 沸腾，所以实际在 50–78°C 操作。辣椒素和辣酯都不挥发，净水器去不掉。
 - **一小瓶失能剂**：用蒸发器蒸干酒精后，在化学制剂成型机里压制，每瓶 2000 微升，必须干燥。基础价 28，纯度分档同原版（和梦尘一样）。合法商品，带医疗品和武器类型。
@@ -238,8 +238,8 @@
 整条线：盐矿石 → 打碎得到食盐 → 加水成盐水 → 电解机每晚电解成碱、氢气、氯气 → 两罐气体混合 → 加热板加热成氯化氢 → 溶进水里成盐酸。合计 1 毫升食盐 + 0.3 毫升水 → 1 毫升碱 + 1 毫升酸，不带化学污染物和重金属。
 
 - **盐矿石**：单价 15，3×2 格。打电话向 GP 矿业订购：6 块（1 天送到）或 12 块（2 天送到，累计花满 350 解锁），和金属矿石共用快递员、批发价和 5 天冷却。任何搅拌机都能打碎，每块得到 80 毫升食盐、4 毫升物理污染物、3 毫升矿物质（模组少时按原版损耗）。
-- **电解机**：杰克逊博士出售，售价 400；玩家还没有时每次都卖，有了之后每次 25% 概率。自带两个空气罐和一张使用说明。界面：电池组、通用模组（同水培机的模组格）、盐水容器、产物 A（氢气）/ 产物 B（氯气）、便签。每晚耗电 24，电解 240 毫升食盐（× 性能），每 1 毫升食盐耗 0.3 毫升水，生成 1 毫升碱（留在容器里）和各 0.5 毫升氢气、氯气（产物 × 0.5–1.5，随质量 −100 到 +100 线性变化）；效率降低耗电。缺盐、缺水、没电或气罐满时停机。产物 A 只收空罐和纯氢气罐，产物 B 只收空罐和纯氯气罐。图标按盐水槽和两个产物槽有没有东西变化（8 种）。
-- **气罐**：独立物品，不是液体容器，最多装 5 升，可以同时装氢气、氯气、氯化氢。单价 25，退休化学家每次来店 20% 概率出售。拖到另一个气罐上合并气体（装不下的留在原罐）；右键“放气”清空。有自己的温度，冷却很慢。
+- **电解机**：卡特尔小贩出售，售价 400；玩家还没有时每次都卖，有了之后每次 50% 概率。自带两个空气罐和一张使用说明。界面：电池组、通用模组（同水培机的模组格）、盐水容器、产物 A（氢气）/ 产物 B（氯气）、便签。每晚耗电 24，电解 240 毫升食盐（× 性能），每 1 毫升食盐耗 0.3 毫升水，生成 1 毫升碱（留在容器里）和各 0.5 毫升氢气、氯气（产物 × 0.5–1.5，随质量 −100 到 +100 线性变化）；效率降低耗电。缺盐、缺水、没电或气罐满时停机。产物 A 只收空罐和纯氢气罐，产物 B 只收空罐和纯氯气罐。图标按盐水槽和两个产物槽有没有东西变化（8 种）。
+- **气罐**：独立物品，不是液体容器，最多装 5 升，可以同时装氢气、氯气、氯化氢。单价 25，卡特尔小贩每次来店都卖一个。拖到另一个气罐上合并气体（装不下的留在原罐）；右键“放气”清空。有自己的温度，冷却很慢。
 - **合成氯化氢**：混合气罐可以放到加热板上（加热板至少要 1 个化学模组才能超过 99°C），温度 ≥ 120°C 时每秒把 10%（至少 1 毫升）的氢气和氯气按 1:1 燃烧成两倍体积的氯化氢。
 - **溶成盐酸**：把装着氯化氢的气罐拖到有水的液体容器上，溶成原版的“酸”，最多溶到酸占液体总量的 40%（500 毫升水最多 333 毫升酸），溶不下的留在罐里。容器里有碱时会被中和，别往刚电解完的碱里倒。
 
@@ -247,13 +247,13 @@
 
 整条线：买到一支菌种 → 放进发酵罐繁育 → 收获的菌种用搅拌机打碎得到头孢菌素 C → 化学制剂成型机压成抗生素片 → 当医疗品卖。真正的玩法在中间那段：菌种会突变，好菌株要自己育出来并冻存；同一组基因组卖多了会产生抗药性。
 
-- **菌种（枝顶孢霉菌）**：单价 60，1×1。带一组 12 位基因组（A/T/C/G，只决定抗药性归属）和五项性状：纯度、产量、生长速度、碳源利用效率、萃取目标，全部显示在鼠标提示里。四项数值性状以 0.1 为步长，没有上限。退休化学家（每周第 2 天）和退休农夫（每周第 5 天）各有 20% 概率带一支来，买来的菌种萃取目标固定为液相、四项之和必为 0，所以永远是偏科而不是变强。
+- **菌种（枝顶孢霉菌）**：单价 60，1×1。带一组 12 位基因组（A/T/C/G，只决定抗药性归属）和五项性状：纯度、产量、生长速度、碳源利用效率、萃取目标，全部显示在鼠标提示里。四项数值性状以 0.1 为步长，没有上限。卡特尔小贩每次来店都带一支，买来的菌种萃取目标固定为液相、四项之和必为 0，所以永远是偏科而不是变强。
   - 纯度：每 1.0 点让抗生素片基础价值 +5（标准 0 → 基础价 100）。
   - 产量：每 1.0 点 +10% 产量，结果四舍五入取整。
   - 生长速度：每 1.0 点 +10%，缩短一轮的晚数，取整后最短 1 晚。
   - 碳源利用效率：每日耗热，0 点为 50 千卡，每 1.0 点 −5 千卡，可以到 0 但不会为负。
   - 萃取目标：液相无影响；菌体表面让药片带“毒药”和二级违禁品；菌丝胞内让药片带“麻醉品”“烟酒类”和一级违禁品。只能靠诱变改变。
-- **发酵罐**：杰克逊博士和退休化学家出售，售价 400。界面：电池组、通用模组格、固定的原版牲畜饲料分配器（碳源，不能取出）、菌种输入、9×6 的收获格、便签。每晚耗电 12 点并从分配器里扣热量；标准性状下两晚一轮，轮末把投入的那一支菌种变成四支。三项模组属性（效率、性能、质量）在这里都只降低耗电，直接相加，可以降到 0 但不会为负。
+- **发酵罐**：卡特尔小贩出售，售价 400；玩家还没有时每次都卖，有了之后每次 50% 概率。界面：电池组、通用模组格、固定的原版牲畜饲料分配器（碳源，不能取出）、菌种输入、9×6 的收获格、便签。每晚耗电 12 点并从分配器里扣热量；标准性状下两晚一轮，轮末把投入的那一支菌种变成四支。三项模组属性（效率、性能、质量）在这里都只降低耗电，直接相加，可以降到 0 但不会为负。
 - **突变**：发酵罐收获的每一支菌种都相对亲本掷一次自然突变——5% 概率改 1~3 个基因，30% 概率改数值性状（总和 −2~+1，期望为负），所以拿收获的菌种接着种会一代代变差。
 - **冷冻保种**：菌种放进通电冰箱的冷冻区过夜会变成冷冻菌种，性状和基因组完全保真。冷冻菌种占 3×3，而原版冰箱的冷冻区是 3×2、每次扩容加一行，所以冰箱至少要扩容一次、并且冷冻区里腾空才冻得成；放不下时菌种保持原样，什么都不丢。双击取出一支完全相同的菌种，可以无限次。这样取出的菌种带“育种”标签，打碎只出 1 毫升蛋白质，所以冷冻罐只能接种、不能直接变现。
 - **定向诱变**：把盛有 4.5~5.5 毫升试剂的容器拖到菌种上，试剂用尽、容器留下。试剂必须是容器里含量最大的一种且占比 ≥ 90%。酸、碱：总和 −5~+5；芬太、N-甲基碱、乙酸、乙酸乙酯：−10~+10；梦帽菇萃取液：−2~+4（期望为正）；梦魇帽菇萃取液：25% 概率改变萃取目标；梦魔菌毒素：改写 1~2 个基因，不动性状；钚：−100~+100，期望 +5。变动随机摊到各项上。条件不满足时试剂照样消耗，并引起一次 −2~0 的突变。突变不会致死。
@@ -313,10 +313,10 @@ beer_table_alcohol,"[[row:酒精|5-8%|8-12%|其余]]"
 - 新增物品：`dream_toxin.injector`（注射剂）、`dream_toxin.formula`（梦魔菌毒素配方）、`vce.ore_notes`（矿石化学笔记）；新增一条化学制剂成型机配方。
 - 原版金属矿石增加了化学成分，可以被搅碎。
 - 核废料后处理：新增液体 `nc_spent_fuel`、`nc_pu_dissolved`、`nc_fission_products`、`nc_pu_extract`、`nc_plutonium`；新增物品 `nc.opened_waste`、`nc.vitrified_waste`、`nc.pu_ampoule`、`nc.reprocessing_notes`；新增顾客“废料掮客”和一条化学制剂成型机配方；撬棍可以撬开原版核废料，原版免疫宁可以缓解辐射病。
-- Harmony 补丁：`ChemicalHelper.HandleTemperatureReaction`（所有新反应）、`MachineFridge.CoolZoneContainers`（冷藏和冷冻标记）、`ChemicalProductHelper.GradeProduct`（只对本 Mod 的注射剂使用医用纯度表）、`StoreClientListSpec.CreateRetiredChemist`（出售进阶化学手册）、`MaterialDirectory.MetalOre`（矿石成分）、`ChemicalHelper.BlendInto`（矿石搅碎条件）。
+- Harmony 补丁：`ChemicalHelper.HandleTemperatureReaction`（所有新反应）、`MachineFridge.CoolZoneContainers`（冷藏和冷冻标记）、`ChemicalProductHelper.GradeProduct`（只对本 Mod 的注射剂使用医用纯度表）、`MaterialDirectory.MetalOre`（矿石成分）、`ChemicalHelper.BlendInto`（矿石搅碎条件）。
 - 其他 Mod 可以往进阶化学手册里加章节：在自己的本地化文件里写 `vce_handbook_title`（章节标题）和 `vce_handbook_line_1`、`vce_handbook_line_2`…（逐行内容，读到第一个缺失的键为止），无需写代码。
 - 空心灯：新增液体 `vce_capsaicin`、`vce_lantern_ester`；新增物品 `vce_chili_seed`、`vce_chili`、`vce_incapacitant_vial`、`vce.lantern_notes`；新增基因 `production_vce_capsaicin` 和一条化学制剂成型机配方。Harmony 补丁：`StoreClient.IsClientRefusingItem`、`StoreClient.IsClientBuyingThisItem`（谁买失能剂）、`SecData.CheckSoldContraband`（冲减罪名，并把这笔交易的成交台词换成专属台词）、`PlayerStore.SellItemFromTable`、`PlayerStore.AcceptBarter`（还原没播出来的专属台词）。卖失能剂会直接改动治安档案里的罪名和调查进度。
-- 电解食盐水：新增液体 `vce_salt`；新增物品 `vce_salt_ore`、`vce_gas_canister`、`vce_electrolyzer`、`vce.electrolysis_notes`。Harmony 补丁：`PhoneDialogList.MiningRegular`、`StoreClientListSupplier.CreateCourrierMining`（订购盐矿）、`MachineHeatingPlate.HeatingPlate`（加热板也收气罐）、`ItemContextHandler.SetButtonColor`（气罐右键显示“放气”）、`GeneralHelper.SetItemOwned`（买下电解机时里面的气罐和说明书一起归玩家）、`StoreClientListSpec.CreateRetiredChemist`（卖空气罐）。
+- 电解食盐水：新增液体 `vce_salt`；新增物品 `vce_salt_ore`、`vce_gas_canister`、`vce_electrolyzer`、`vce.electrolysis_notes`。Harmony 补丁：`PhoneDialogList.MiningRegular`、`StoreClientListSupplier.CreateCourrierMining`（订购盐矿）、`MachineHeatingPlate.HeatingPlate`（加热板也收气罐）、`ItemContextHandler.SetButtonColor`（气罐右键显示“放气”）、`GeneralHelper.SetItemOwned`（买下电解机时里面的气罐和说明书一起归玩家）。
 - 免疫宁：`ConsumableHelper.InitImmunivax`，有辐射病时非哨兵开局也能注射。
 - 申请 `reflection-external`，用于延迟安装 Harmony 补丁以及调用原版私有的罚款对话；不读写文件。
 - 卸载前请先处理掉含有本 Mod 液体的容器、注射剂、钚安瓿、打开的核废料和配方便条。
@@ -340,6 +340,8 @@ beer_table_alcohol,"[[row:酒精|5-8%|8-12%|其余]]"
 - **Gas: empty / full hydrogen / full chlorine / hydrogen + chlorine canister**：各种气罐。
 
 ## 更新记录
+
+- **1.8.1**：新增俄语翻译。手册右侧加了每章一枚的彩色书签，抗生素一章加了菌种性状表。抗生素削弱：每支菌种的头孢菌素 C 减半（3 片），药片基础价 60。抗生素片可以在饲料分配器里打碎，当晚治好同笼患病牲畜。修复抗药性不触发（售出记录在原版清空清单之后才读）。头孢菌素 C 倾倒、过滤、滴管转移时带上基因组、纯度性状和萃取目标；自然基因组突变从 5% 降到 0.5%。多晚批次读档不再重置，发酵罐提示显示实际耗电。卡特尔：快递员送 20 瓶装化学品包（酸碱酒精 250，其余 500），卡特尔商人收违禁品证据减半，同行物资箱填充原版战利品，电话菜单分页。过滤器留住滤渣，可以倒出。手册多处修正（乙酸乙酯 1:1、乙酸原料、核废料制法出处、矿石化学提纯措辞）。
 
 - **1.8.0**：新增抗生素产业链（见第十一章）。发酵罐里选育枝顶孢霉菌菌种，每支带 12 位基因组和五项可见性状；一轮两晚、一支变四支，每支都相对亲本突变过，期望为负。冰箱冷冻区过夜变成冷冻菌种，性状保真、可无限接种。搅拌机打碎得到头孢菌素 C，5 毫升压一片抗生素片，只分实验室纯 / 药用级 / 不合格三档，低于药用级不能出售。十种试剂可以定向诱变（约 5 毫升拖到菌种上）。抗生素按基因组记账，卖多了产生抗药性、最多扣一半售价，换一组差 4 位以上的基因组即可规避。手册新增“抗生素育种笔记”。
 
@@ -369,13 +371,13 @@ beer_table_alcohol,"[[row:酒精|5-8%|8-12%|其余]]"
 
 An expansion built on the vanilla chemistry system, without changing vanilla products or reactions.
 
-**Dream Toxin**: mix Dream Cap Extract and Nightmare Cap Extract 1:1 with 0.5–5% acid and keep it refrigerated (2–8 C or in a powered fridge chill zone). It is heat-stable, so leftover extract can be burned off above 100 C. Press it into Dream Toxin Injectors in the Chem Finisher: a legal cosmetic medical product (base value 150) that is only worth anything at pharma grade (90%+). The retired chemist sells the formula.
+**Dream Toxin**: mix Dream Cap Extract and Nightmare Cap Extract 1:1 with 0.5–5% acid and keep it refrigerated (2–8 C or in a powered fridge chill zone). It is heat-stable, so leftover extract can be burned off above 100 C. Press it into Dream Toxin Injectors in the Chem Finisher: a legal cosmetic medical product (base value 150) that is only worth anything at pharma grade (90%+). The Cartel Vendor sells the handbook with the formula.
 
 **Ore chemistry**: metal ore can be crushed in a blender with all 4 chem modules into calcite, quartz sand and impurities (amounts vary per ore). Kotton fabric filters out only the coarse quartz; water filters catch all fine solids.
 
 - **Purifying base**: calcine calcite (dry, 150 C+) into quicklime and add it to base (50%+). Quicklime causticizes chemical contaminant back into base plus calcium carbonate (faster at 80 C+); heavy metal settles out by itself. Filter with a water filter.
 - **Purifying acid**: dissolve quartz in base at 120 C+ to get water glass, filter, then add acid to precipitate silica gel. In acid (80%+), silica gel drives chemical contaminant off as gas at 100 C+ (1 gel per 4 contaminant); freezing then removes heavy metal at the cost of an equal amount of acid. Filter with a water filter.
-- All steps are in the **Advanced Chemistry Handbook**, which the retired chemist and Dr. Jackson sell whenever you don't own one.
+- All steps are in the **Advanced Chemistry Handbook**, which the Cartel Vendor (first visit on day 5, then every 7 days) sells whenever you don't own one.
 
 **Starch genes**: nutrifruit's starch and sugar now come from innate Starch Production (rank 4) and Sugar Production (rank 1) genes with vanilla totals, so they can be extracted onto DNA disks and spliced into other crops.
 
