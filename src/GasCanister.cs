@@ -1,12 +1,14 @@
 // Gas canister for the brine electrolysis line (art/salt/DESIGN.md): its own item, NOT a vanilla liquid container,
 // so none of the vanilla liquid paths (pouring, machine container slots, drains, water buyers, purifiers, pipette
-// mods) can put anything into it. It holds hydrogen, chlorine and hydrogen chloride in its own tags (uL, 5 L in all).
-//   - The electrolyzer fills empty or pure canisters (product A hydrogen, product B chlorine).
+// mods) can put anything into it. It holds hydrogen, chlorine, hydrogen chloride and nitric oxide in its own tags
+// (uL, 5 L in all).
+//   - The electrolyzer fills empty or pure canisters (product A hydrogen, product B chlorine; product A nitric oxide
+//     when its feed slot is empty).
 //   - Drag one canister onto another: its gases move into the target, as far as there is room.
 //   - On a heating plate (patched below) it warms up; at 120 C+ hydrogen and chlorine burn 1:1 into twice the volume
 //     of hydrogen chloride, 10% a second (at least 1000 uL), like the faster reactions of this mod.
-//   - Drag it onto a liquid container with water: hydrogen chloride dissolves into vanilla acid, up to 40% of the
-//     liquid; what does not dissolve stays in the canister.
+//   - Drag it onto a liquid container with water: hydrogen chloride dissolves into vanilla acid and nitric oxide into
+//     nitric acid, each up to 40% of the liquid; what does not dissolve stays in the canister.
 //   - Right-click "Vent" (the vanilla toggle button) empties it.
 // Written for C# 5 (see DreamToxinMod.cs).
 using System;
@@ -21,11 +23,14 @@ public static class GasCanister
     public const string SPRITE_CL2 = "vce_gas_canister_cl2";
     public const string SPRITE_MIX = "vce_gas_canister_mix";
     public const string SPRITE_HCL = "vce_gas_canister_hcl";
+    public const string SPRITE_NO = "vce_gas_canister_no";
 
     public const string HYDROGEN = "h2";
     public const string CHLORINE = "cl2";
     public const string HCL = "hcl";
-    private static readonly string[] Gases = { HYDROGEN, CHLORINE, HCL };
+    // Nitric oxide: the electrolyzer's arc makes it from air when its feed slot is empty (Electrolyzer.RunNoCycle).
+    public const string NITRIC_OXIDE = "no";
+    private static readonly string[] Gases = { HYDROGEN, CHLORINE, HCL, NITRIC_OXIDE };
 
     public const string TEMP_TAG = "CONTAINER_TEMP_TAG";  // same tag as liquid containers: the heating plate shows it
 
@@ -58,6 +63,7 @@ public static class GasCanister
             ModHelper.AddDebugFunction(id, "Modding", "Gas: full hydrogen canister", delegate { Give(HYDROGEN, null); }, false);
             ModHelper.AddDebugFunction(id, "Modding", "Gas: full chlorine canister", delegate { Give(CHLORINE, null); }, false);
             ModHelper.AddDebugFunction(id, "Modding", "Gas: hydrogen + chlorine canister", delegate { Give(HYDROGEN, CHLORINE); }, false);
+            ModHelper.AddDebugFunction(id, "Modding", "Gas: full nitric oxide canister", delegate { Give(NITRIC_OXIDE, null); }, false);
         }
         catch (Exception e)
         {
@@ -125,13 +131,22 @@ public static class GasCanister
         return "VCE_GAS_" + gas.ToUpperInvariant() + "_INT";
     }
 
+    // Gas amounts and temperature are written to the item's base state without revalidating it (that would cost a
+    // full shape validation every second), so they are read from the base state too. IsTag / GetTagReadonly read the
+    // validated state, which only catches up when the item is next validated (moved, for one): reading that made a
+    // freshly filled canister look empty and lost gas when it was filled or reacted again before being moved.
+    private static bool HasBaseTag(GameItem item, string tag)
+    {
+        return item != null && item.state != null && item.state.IsTag(tag);
+    }
+
     public static int Amount(GameItem item, string gas)
     {
-        if (!IsCanister(item) || gas == null || !item.IsTag(TagOf(gas)))
+        if (!IsCanister(item) || gas == null || !HasBaseTag(item, TagOf(gas)))
         {
             return 0;
         }
-        return Math.Max(0, item.GetTagReadonly(TagOf(gas)).GetInt());
+        return Math.Max(0, item.state.GetTag(TagOf(gas)).GetInt());
     }
 
     public static int Total(GameItem item)
@@ -214,7 +229,7 @@ public static class GasCanister
 
     public static double TempOf(GameItem item)
     {
-        return item != null && item.IsTag(TEMP_TAG) ? item.GetTagReadonly(TEMP_TAG).GetDouble() : START_TEMP;
+        return HasBaseTag(item, TEMP_TAG) ? item.state.GetTag(TEMP_TAG).GetDouble() : START_TEMP;
     }
 
     public static void SetTemp(GameItem item, double temp)
@@ -227,12 +242,21 @@ public static class GasCanister
 
     // ---- name, sprite, tooltip ----------------------------------------------------------------------------------
 
-    // Hydrogen chloride takes priority, then the hydrogen / chlorine mix, then a single gas.
+    // Nitric oxide mixed with anything is a plain mixed canister; otherwise hydrogen chloride takes priority, then the
+    // hydrogen / chlorine mix, then a single gas.
     public static void Apply(GameItem item)
     {
-        int h2 = Amount(item, HYDROGEN), cl2 = Amount(item, CHLORINE), hcl = Amount(item, HCL);
+        int h2 = Amount(item, HYDROGEN), cl2 = Amount(item, CHLORINE), hcl = Amount(item, HCL), no = Amount(item, NITRIC_OXIDE);
         string name, sprite;
-        if (hcl > 0)
+        if (no > 0 && h2 + cl2 + hcl > 0)
+        {
+            name = "gas_canister_mixed_name"; sprite = SPRITE_MIX;
+        }
+        else if (no > 0)
+        {
+            name = "gas_canister_no_name"; sprite = SPRITE_NO;
+        }
+        else if (hcl > 0)
         {
             name = "gas_canister_hcl_name"; sprite = SPRITE_HCL;
         }
@@ -254,6 +278,8 @@ public static class GasCanister
         }
         item.name = Text.Get(name);
         BeerSprites.Apply(item, sprite);
+        // Bring the validated state up to date, so vanilla code reading the item (tooltips, saving) sees the gas too.
+        item.ValidateShapeState();
     }
 
     public static void OnCreateTooltip(RichTextBuilder builder, GameItem item)
@@ -363,7 +389,7 @@ public static class GasCanister
         {
             return Total(s) > 0;
         }
-        return t.IsTag("LIQUID_CONTAINER_TAG") && Amount(s, HCL) > 0;
+        return t.IsTag("LIQUID_CONTAINER_TAG") && (Amount(s, HCL) > 0 || Amount(s, NITRIC_OXIDE) > 0);
     }
 
     private static void OnTarget(GameItem s, GameItem t)
@@ -421,11 +447,11 @@ public static class GasCanister
         AudioHelper.PourWater();
     }
 
-    // Hydrogen chloride into water, up to 40% acid; the rest stays in the canister.
+    // Soluble gases into water, each 1:1 into its acid (hydrogen chloride -> vanilla acid, nitric oxide -> nitric
+    // acid), each acid up to 40% of the liquid; what does not dissolve stays in the canister.
     public static void Dissolve(GameItem canister, GameItem container)
     {
-        int hcl = Amount(canister, HCL);
-        if (hcl <= 0)
+        if (Amount(canister, HCL) <= 0 && Amount(canister, NITRIC_OXIDE) <= 0)
         {
             return;
         }
@@ -434,25 +460,49 @@ public static class GasCanister
             Notify(Text.Get("gas_canister_needs_water"));
             return;
         }
-        int total = WaterHelper.GetTotalVolume(container);
-        int acid = IaLiquids.Get(container, "acid");
-        long other = Math.Max(0, total - acid);
-        long limit = (long)Math.Floor(other * SOLUBILITY / (1.0 - SOLUBILITY)) - acid;
-        long amount = Math.Min(Math.Min(limit, hcl), WaterHelper.GetFreeCapacity(container));
-        if (amount <= 0)
+        string failure = null;
+        bool any = false;
+        DissolveGas(canister, container, HCL, "acid", ref any, ref failure);
+        DissolveGas(canister, container, NITRIC_OXIDE, FlavorChemistry.NITRIC_ACID, ref any, ref failure);
+        if (!any)
         {
-            Notify(Text.Get(limit <= 0 ? "gas_canister_saturated" : "gas_canister_container_full"));
+            if (failure != null)
+            {
+                Notify(Text.Get(failure));
+            }
             return;
         }
-        int dissolved = (int)amount;
-        SetAmount(canister, HCL, hcl - dissolved);
-        ChemicalHelper.HandleReceiveLiquidTemp(container, dissolved, TempOf(canister));
-        IaLiquids.Set(container, "acid", acid + dissolved);
         Apply(canister);
         ItemFeature waterFeature = WaterFeatureHelper.GetWaterFeature(container);
         WaterFeatureHelper.OnLiquidChanged(container, waterFeature != null && waterFeature.IsExposed());
         SpriteHelper.UpdateWaterContainerSprite(container);
         AudioHelper.PourWater();
+    }
+
+    // One gas into its acid: until that acid makes up 40% of the liquid (acid <= other liquids x 2/3), and as far
+    // as the container has room.
+    private static void DissolveGas(GameItem canister, GameItem container, string gas, string liquid, ref bool any, ref string failure)
+    {
+        int held = Amount(canister, gas);
+        if (held <= 0)
+        {
+            return;
+        }
+        int total = WaterHelper.GetTotalVolume(container);
+        int acid = IaLiquids.Get(container, liquid);
+        long other = Math.Max(0, total - acid);
+        long limit = (long)Math.Floor(other * SOLUBILITY / (1.0 - SOLUBILITY)) - acid;
+        long amount = Math.Min(Math.Min(limit, held), WaterHelper.GetFreeCapacity(container));
+        if (amount <= 0)
+        {
+            failure = limit <= 0 ? "gas_canister_saturated" : "gas_canister_container_full";
+            return;
+        }
+        int dissolved = (int)amount;
+        SetAmount(canister, gas, held - dissolved);
+        ChemicalHelper.HandleReceiveLiquidTemp(container, dissolved, TempOf(canister));
+        IaLiquids.Set(container, liquid, acid + dissolved);
+        any = true;
     }
 
     private static void Notify(string text)

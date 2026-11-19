@@ -4,8 +4,13 @@
 //   1 mL salt + 0.3 mL water -> 1 mL base + 0.5 mL hydrogen + 0.5 mL chlorine
 // 240 mL of salt a night (three salt ores) x performance; products x quality (-100 -> x0.5, 0 -> x1, +100 -> x1.5);
 // efficiency lowers the power draw (24 a night) through vanilla's module code. It stops for want of salt, water,
-// battery charge or canister room. Sold by Dr. Jackson with an empty canister in each product slot.
-// Written for C# 5 (see DreamToxinMod.cs).
+// battery charge or canister room. Sold by the Cartel Vendor with an empty canister in each product slot.
+// With a liquid container in product A instead of a canister, it electrolyses fat from the input container:
+//   1 mL fat -> 0.8 mL toluene (into the container in product A) + 0.5 mL hydrogen (into the canister in product B)
+// 240 mL of fat a night x performance, products x quality, as above. Product B then takes empty, chlorine or
+// hydrogen canisters (a canister holding the other gas stops the run). With nothing in the feed slot at all, it makes
+// 120 mL of nitric oxide a night from air into an empty or nitric oxide canister in product A. It only runs while the
+// switch in the feed panel is on (off by default). Written for C# 5 (see DreamToxinMod.cs).
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -29,6 +34,15 @@ public static class Electrolyzer
     // Quality +-100 changes every product by +-50%.
     public const double QUALITY_SPAN = 0.5;
 
+    // Fat electrolysis (a liquid container in product A).
+    public const int FAT_PER_NIGHT_UL = 240000;
+    public const double TOLUENE_PER_FAT = 0.8;
+    public const double HYDROGEN_PER_FAT = 0.5;
+
+    // Switched on with nothing in the feed slot, the arc burns air into nitric oxide: 120 mL a night into the canister
+    // in product A, x performance and x quality like the other runs.
+    public const int NO_PER_NIGHT_UL = 120000;
+
     private class Slots
     {
         public GameSlotInventory Battery;
@@ -37,7 +51,20 @@ public static class Electrolyzer
         public GameSlotInventory ProductA;
         public GameSlotInventory ProductB;
         public GameSlotInventory Note;
+        public MachineryPanel FeedPanel;
+        public MachineryButton Switch;
+        public bool SwitchShowsOff;
     }
+
+    // The on/off switch in the feed panel's header (blue = on, red = off). Set while the machine is switched on, so
+    // every machine starts switched off; machine tags come back with a save, so the switch keeps its position.
+    public const string ON_TAG = "VCE_ELECTROLYZER_ON_TAG";
+    public const string SWITCH_SPRITE = "vce_electrolyzer_switch";
+    public const int SWITCH_WIDTH = 18;
+    public const int SWITCH_HEIGHT = 10;
+    // The panel's own padding (MachineryPanel.Validate) and the gap between the label and the switch.
+    private const int PANEL_PAD = 4;
+    private const int SWITCH_GAP = 3;
 
     // The universal-module bay of the vanilla hydroponic machine (a 7x5 cross; 1 = slot).
     // Set once the manual and the two canisters have been put in, so they are never added twice.
@@ -103,10 +130,11 @@ public static class Electrolyzer
             MachineryStack.Vertical(
                 MachineryStack.Vertical(MachineHelper.WrapInIntake(s.ProductA, true)),
                 MachineryStack.Vertical(MachineHelper.WrapInIntake(s.ProductB, true))));
+        s.FeedPanel = MachineHelper.Panel(Text.Get("electrolyzer_label_container"), s.Container, "container", true);
         PixelWindow window = MachineHelper.CreateMachineryWindow(true,
             MachineHelper.PowerPanel(s.Battery),
             MachineHelper.Panel(Text.Get("electrolyzer_label_module"), s.Modules, "module", true),
-            MachineHelper.Panel(Text.Get("electrolyzer_label_container"), s.Container, "container", true),
+            s.FeedPanel,
             MachineHelper.Panel(Text.Get("electrolyzer_label_products"), products, "products", true),
             MachineHelper.NotePanel(note));
 
@@ -127,11 +155,15 @@ public static class Electrolyzer
             s.Container.mayInventoryAddItemFunc = (GameItem item, GameInventory _) => GeneralHelper.IsItemOwned(item) && item.IsTag("LIQUID_CONTAINER_TAG");
             s.Container.SetBackgroundFadeSprite("Items/water_container4", "xl");
             s.Container.slotPriorityFunc = (GameItem _, GameInventory __, SlotMarker ___) => 3;
-            // Product A takes empty or pure hydrogen canisters, B empty or pure chlorine ones. Ownership is not checked:
-            // Dr. Jackson's machines come with unowned canisters inside, and ElectrolyzerOwnershipPatch below hands
-            // them over with the machine.
-            s.ProductA.mayInventoryAddItemFunc = (GameItem item, GameInventory _) => GasCanister.IsPure(item, GasCanister.HYDROGEN);
-            s.ProductB.mayInventoryAddItemFunc = (GameItem item, GameInventory _) => GasCanister.IsPure(item, GasCanister.CHLORINE);
+            // Product A takes empty or pure hydrogen canisters, or an owned liquid container (fat electrolysis: the
+            // toluene goes there). Product B takes empty, pure chlorine or pure hydrogen canisters (hydrogen comes out
+            // there when product A holds a container). Canister ownership is not checked: shop machines come with
+            // unowned canisters inside, and ElectrolyzerOwnershipPatch below hands them over with the machine.
+            s.ProductA.mayInventoryAddItemFunc = (GameItem item, GameInventory _) => GasCanister.IsPure(item, GasCanister.HYDROGEN)
+                || GasCanister.IsPure(item, GasCanister.NITRIC_OXIDE)
+                || (IsTolueneContainer(item) && GeneralHelper.IsItemOwned(item));
+            s.ProductB.mayInventoryAddItemFunc = (GameItem item, GameInventory _) => GasCanister.IsPure(item, GasCanister.CHLORINE)
+                || GasCanister.IsPure(item, GasCanister.HYDROGEN);
             foreach (GameSlotInventory product in new GameSlotInventory[] { s.ProductA, s.ProductB })
             {
                 product.slotPriorityFunc = (GameItem _, GameInventory __, SlotMarker ___) => 2;
@@ -147,6 +179,7 @@ public static class Electrolyzer
             // Vanilla's module bay setup, as on the hydroponic machine: universal modules, effects and power update.
             MachineHelper.SetupModuleBay(s.Modules, machine, null, new string[] { "MODULE_TYPE_UNIVERSAL" });
             MachineHelper.SetupManualSlot(note);
+            AddSwitch(machine, s);
 
             // However the machine came about (shop, debug, item spawners, older saves), its first tick puts in the
             // manual and two empty canisters, once; DirectoryMaster.Item strips children from new items, so this
@@ -164,6 +197,8 @@ public static class Electrolyzer
                 {
                     Log.Error("stocking the electrolyzer failed", e);
                 }
+                // The window may have been resized, and a load restores the off tag after the window was built.
+                SyncSwitch(item);
             };
 
             MachineryHelper.InitMachinery(machine, POWER_PER_NIGHT, false);
@@ -194,6 +229,85 @@ public static class Electrolyzer
             Log.Error("create " + ITEM_ID + " failed", e);
         }
         return machine;
+    }
+
+    // ---- the on/off switch ----------------------------------------------------------------------------------------
+
+    public static bool IsOff(GameItem machine)
+    {
+        return machine == null || !machine.IsTag(ON_TAG);
+    }
+
+    private static void AddSwitch(GameItem machine, Slots s)
+    {
+        try
+        {
+            Sprite on = Xinke.ModSprite(SWITCH_SPRITE + "_on");
+            if (on == null || s.FeedPanel == null)
+            {
+                return;
+            }
+            Sprite onHover = Xinke.ModSprite(SWITCH_SPRITE + "_on_hl");
+            s.Switch = new MachineryButton(on, onHover, onHover, on, null);
+            s.Switch.SetCallback(delegate
+            {
+                try
+                {
+                    if (IsOff(machine))
+                    {
+                        machine.EnableTag(ON_TAG, false);
+                    }
+                    else
+                    {
+                        machine.DisableTag(ON_TAG, false);
+                    }
+                    SyncSwitch(machine);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("electrolyzer switch failed", e);
+                }
+            });
+            s.Switch.handler.SetParent(s.FeedPanel.handler);
+            // Room for the switch on both sides of the label, so the label stays centred.
+            int labelWidth = s.FeedPanel.label != null ? s.FeedPanel.label.widthPixels : 0;
+            s.FeedPanel.SetMinWidth(labelWidth + 2 * (SWITCH_WIDTH + SWITCH_GAP) + 2 * PANEL_PAD);
+            // The opposite of the current state, so the first sync sets the face and the tooltip.
+            s.SwitchShowsOff = !IsOff(machine);
+            SyncSwitch(machine);
+        }
+        catch (Exception e)
+        {
+            Log.Error("electrolyzer switch setup failed", e);
+        }
+    }
+
+    // Face from the off tag, position from the panel's current width (top right, level with the label).
+    private static void SyncSwitch(GameItem machine)
+    {
+        try
+        {
+            Slots s = SlotsOf(machine);
+            if (s == null || s.Switch == null || s.FeedPanel == null)
+            {
+                return;
+            }
+            bool off = IsOff(machine);
+            if (off != s.SwitchShowsOff)
+            {
+                string key = SWITCH_SPRITE + (off ? "_off" : "_on");
+                Sprite normal = Xinke.ModSprite(key);
+                Sprite hover = Xinke.ModSprite(key + "_hl");
+                s.Switch.SetFaceSprites(normal, hover, hover, normal);
+                s.Switch.SetDescription(Text.Get(off ? "electrolyzer_switch_off" : "electrolyzer_switch_on"));
+                s.SwitchShowsOff = off;
+            }
+            MachineryStyle.Place(s.Switch.handler, s.FeedPanel.widthPixels - PANEL_PAD - SWITCH_WIDTH, PANEL_PAD, SWITCH_WIDTH, SWITCH_HEIGHT);
+        }
+        catch (Exception e)
+        {
+            Log.Error("electrolyzer switch sync failed", e);
+        }
     }
 
     private static Slots SlotsOf(GameItem machine)
@@ -272,11 +386,107 @@ public static class Electrolyzer
         return (int)Math.Max(0, amount);
     }
 
+    // A liquid container that is not a gas canister: what product A takes for fat electrolysis.
+    public static bool IsTolueneContainer(GameItem item)
+    {
+        return item != null && !GasCanister.IsCanister(item) && item.IsTag("LIQUID_CONTAINER_TAG");
+    }
+
+    // uL of fat this machine would electrolyse tonight, limited by fat, speed, room in the container in product A
+    // and hydrogen room in the canister in product B.
+    private static int PlanFat(GameItem machine, Slots s)
+    {
+        GameItem input = s.Container.childItem;
+        GameItem target = s.ProductA.childItem;
+        if (input == null || target == null || WaterHelper.IsEmpty(input))
+        {
+            return 0;
+        }
+        int fat = IaLiquids.Get(input, "fat");
+        if (fat <= 0)
+        {
+            return 0;
+        }
+        double quality = QualityFactor(machine);
+        long amount = Math.Min(fat, (long)Math.Round(FAT_PER_NIGHT_UL * PerformanceFactor(machine)));
+        double toluenePerFat = TOLUENE_PER_FAT * quality;
+        double hydrogenPerFat = HYDROGEN_PER_FAT * quality;
+        if (toluenePerFat > 0)
+        {
+            amount = Math.Min(amount, (long)Math.Floor(WaterHelper.GetFreeCapacity(target) / toluenePerFat));
+        }
+        if (hydrogenPerFat > 0)
+        {
+            amount = Math.Min(amount, (long)Math.Floor(GasCanister.FreeFor(s.ProductB.childItem, GasCanister.HYDROGEN) / hydrogenPerFat));
+        }
+        return (int)Math.Max(0, amount);
+    }
+
+    private static void RunFatCycle(GameItem machine, Slots s)
+    {
+        int amount = PlanFat(machine, s);
+        if (amount <= 0)
+        {
+            return;
+        }
+        if (!PowerHelper.DrawPowerSource(s.Battery.childItem, MachineryHelper.GetMachinePowerUsage(machine)))
+        {
+            return;
+        }
+        GameItem input = s.Container.childItem;
+        GameItem target = s.ProductA.childItem;
+        double quality = QualityFactor(machine);
+        int toluene = (int)Math.Round(amount * TOLUENE_PER_FAT * quality);
+        int hydrogen = (int)Math.Round(amount * HYDROGEN_PER_FAT * quality);
+        IaLiquids.Set(input, "fat", IaLiquids.Get(input, "fat") - amount);
+        if (toluene > 0)
+        {
+            WaterHelper.AddLiquid(target, FlavorChemistry.TOLUENE, toluene);
+        }
+        GasCanister.Fill(s.ProductB.childItem, GasCanister.HYDROGEN, hydrogen);
+        WaterFeatureHelper.OnLiquidContainerPourOutOf(input);
+        SpriteHelper.UpdateWaterContainerSprite(input);
+        SpriteHelper.UpdateWaterContainerSprite(target);
+        MachineHelper.OnMachineActioned(machine, s.Modules);
+        Log.Info("electrolyzer: " + amount + " uL fat -> " + toluene + " uL toluene, " + hydrogen + " uL hydrogen");
+    }
+
+    // Nitric oxide into an empty or nitric oxide canister in product A, as much as fits.
+    private static void RunNoCycle(GameItem machine, Slots s)
+    {
+        GameItem canister = s.ProductA.childItem;
+        long amount = (long)Math.Round(NO_PER_NIGHT_UL * PerformanceFactor(machine) * QualityFactor(machine));
+        amount = Math.Min(amount, GasCanister.FreeFor(canister, GasCanister.NITRIC_OXIDE));
+        if (amount <= 0)
+        {
+            return;
+        }
+        if (!PowerHelper.DrawPowerSource(s.Battery.childItem, MachineryHelper.GetMachinePowerUsage(machine)))
+        {
+            return;
+        }
+        GasCanister.Fill(canister, GasCanister.NITRIC_OXIDE, (int)amount);
+        MachineHelper.OnMachineActioned(machine, s.Modules);
+        Log.Info("electrolyzer: " + amount + " uL nitric oxide from air");
+    }
+
     public static void RunCycle(GameItem machine)
     {
         Slots s = SlotsOf(machine);
-        if (s == null || s.Battery.childItem == null)
+        if (s == null || s.Battery.childItem == null || IsOff(machine))
         {
+            return;
+        }
+        // Nothing in the feed slot: nitric oxide from air.
+        if (s.Container.childItem == null)
+        {
+            RunNoCycle(machine, s);
+            return;
+        }
+        // A liquid container in product A switches the machine to fat electrolysis.
+        if (IsTolueneContainer(s.ProductA.childItem))
+        {
+            RunFatCycle(machine, s);
             return;
         }
         int amount = Plan(machine, s);
@@ -438,6 +648,8 @@ public class ElectrolysisLines : SpritePixelElement, TooltipListener
         builder.AddLine(Text.Get("electrolyzer_lines_a"), true, RenderHandler.ColorPalette.LightRed);
         builder.AddLine(Text.Get("electrolyzer_lines_b"), true, RenderHandler.ColorPalette.LightBlue);
         builder.AddLine(Text.Get("electrolyzer_lines_base"), true, RenderHandler.ColorPalette.LightCyan);
+        builder.AddLine(Text.Get("electrolyzer_lines_fat"), true, RenderHandler.ColorPalette.LightYellow);
+        builder.AddLine(Text.Get("electrolyzer_lines_no"), true, RenderHandler.ColorPalette.LightPurple);
         return builder.Build(-1);
     }
 

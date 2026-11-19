@@ -36,6 +36,7 @@ public static class IndustrialAlcohol
             ModHelper.AddDebugFunction(id, "Modding", "Beer: premium keg", IaDebugKit.SpawnBeerKeg, false);
             ModHelper.AddDebugFunction(id, "Modding", "Beer: 2 L wort to press (5.5%)", IaDebugKit.SpawnBeerWort, false);
             ModHelper.AddDebugFunction(id, "Modding", "Beer: chill held keg", IaDebugKit.ChillKegs, false);
+            ModHelper.AddDebugFunction(id, "Modding", "Dynamite: one street-grade bundle", Dynamite.SpawnKit, false);
         }
         catch (Exception e)
         {
@@ -64,10 +65,12 @@ public static class IndustrialAlcohol
         BeerQuality.Register();
         Beer.RegisterRecipe();
         Xinke.Register();
+        Dynamite.Register();
     }
 
     public static void UnregisterContent()
     {
+        Dynamite.Unregister();
         Xinke.Unregister();
         BlendedWine.UnregisterRecipe();
         BlendedWineLabels.Unregister();
@@ -81,6 +84,7 @@ public static class IndustrialAlcohol
         Beer.AddItems(directory);
         directory.Add(AdvancedFabric.ITEM_ID, AdvancedFabric.Create);
         Xinke.AddItems(directory);
+        Dynamite.AddItems(directory);
     }
 }
 
@@ -136,6 +140,10 @@ public static class IaLiquids
         Rename(ICE, "liquid_ice");
         Rename(FlavorChemistry.ACETIC_ACID, "liquid_acetic_acid");
         Rename(FlavorChemistry.ETHYL_ACETATE, "liquid_ethyl_acetate");
+        Rename(FlavorChemistry.TOLUENE, "liquid_toluene");
+        Rename(FlavorChemistry.NITRIC_ACID, "liquid_nitric_acid");
+        Rename(FlavorChemistry.TNT, "liquid_tnt");
+        Dynamite.RefreshNames();
         BlendedWineLabels.RefreshDisplays();
         BlendedWine.RefreshRecipeName();
         BeerQuality.RefreshDisplays();

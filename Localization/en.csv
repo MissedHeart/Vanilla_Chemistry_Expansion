@@ -50,7 +50,7 @@ category_wine_blend,Production
 making_notes_name,Blended Wine Recipe
 making_1,"[[image:vanilla_chem_ext:blender_b|w=24|h=24|gap=6|float=left]]\n- Attach a liquid container to the Blender\n- Add anything that gives plant matter, such as edible Dream Caps, Dream Caps or Nightmare Caps\n- Blend them; Dream Cap and Nightmare Cap mush also turn into plant matter when heated\n[[section:Step 8: Make acetic acid]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- Take the container from the previous step\n- Put it on the Heating Plate\n- Boil it dry above 100°C, then dry-distill it above 150°C: the plant matter turns into acetic acid and char"
 making_2,"[[section:Step 9: Make ethyl acetate]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- Add as much alcohol as there is acetic acid\n- Add acid making up 1% of all the liquid\n- Heat the mix to 60-75°C: the acetic acid and alcohol form ethyl acetate"
-making_3,"[[section:Step 10: Purify the product (optional)]]\n- Neutralize with base and filter out the debris with a Water Filter; the ethyl acetate, alcohol and water left can all be used as they are"
+making_3,"[[section:Step 10: Purify the product (optional)]]\n- Once esterification is done, neutralize with base: it takes the acid first, then any acetic acid left\n- Filter out the debris with a Water Filter; the ethyl acetate, alcohol and water left can all be used as they are"
 making_4,"- Blend to 20-25% alcohol of all the liquid, with 1-2 mL of ethyl acetate per 1000 mL of liquid, and other impurities no more than 1% of the liquid"
 making_5,"[[section:Step 12: Finish]]\n[[image:vanilla_chem_ext:chem_finisher_b|w=24|h=24|gap=6|float=left]]\n- Put the container in the Chem Finisher\n- Select the Blended Wine recipe\n- Press Output\n- (Optional) Check the purity with a Composition Spectrometer\n[[gap:8]]\n[[text:Note: blended wine cannot be aged; each bottle holds 750 mL|color=#3D823F|align=center]]"
 making_6,"[[section:Warning: over 0.1% methanol is a public hazard|fill=#853737|color=#FFFFFF]]"
@@ -224,7 +224,7 @@ gas_canister_h2_name,Hydrogen Canister
 gas_canister_cl2_name,Chlorine Canister
 gas_canister_mix_name,Hydrogen-Chlorine Canister
 gas_canister_hcl_name,Hydrogen Chloride Canister
-gas_canister_desc,"A small steel cylinder with a valve that takes up to 5 L of compressed gas. Drag it onto another canister to move its gas over; with hydrogen chloride inside, drag it onto a container with water to make hydrochloric acid. Right-click to vent it."
+gas_canister_desc,"A small steel cylinder with a valve that takes up to 5 L of compressed gas. Drag it onto another canister to move its gas over; with hydrogen chloride or nitric oxide inside, drag it onto a container with water to make hydrochloric or nitric acid. Right-click to vent it."
 gas_h2,Hydrogen
 gas_cl2,Chlorine
 gas_hcl,Hydrogen chloride
@@ -234,16 +234,16 @@ gas_canister_tooltip_total,"{0} / {1} mL, {2} C"
 gas_canister_vent,Vent
 gas_canister_vented,The canister is empty.
 gas_canister_full,That canister is full.
-gas_canister_needs_water,"Hydrogen chloride needs water in the container to become acid."
+gas_canister_needs_water,"The gas needs water in the container to become acid."
 gas_canister_saturated,"This acid is already at 40%; add water to dissolve more."
 gas_canister_container_full,The container is full.
 electrolyzer_name,Electrolyzer
-electrolyzer_desc,"Electrolyses brine into base, hydrogen and chlorine. Needs a battery and runs once a night; the container needs salt and water, and both product slots need a canister with room left."
+electrolyzer_desc,"Electrolyses brine into base, hydrogen and chlorine; with a liquid container in product A it electrolyses fat into toluene and hydrogen instead, and with nothing in the feed slot it makes nitric oxide from air. Needs a battery and runs once a night."
 electrolyzer_manual_name,Electrolyzer Instructions
 electrolyzer_manual_short,The instructions that came with the electrolyzer.
-electrolyzer_manual_flavor,"1. A battery goes on the left; it draws 24 a night. 2. The brine slot takes a container of salt and water. 3. Product A takes an empty or hydrogen canister, product B an empty or chlorine one. 4. Each night it electrolyses 240 mL of salt: every mL of salt uses 0.3 mL of water and gives 1 mL of base (left in the brine container), 0.5 mL of hydrogen and 0.5 mL of chlorine. It stops without salt, water, power or canister room. 5. Takes universal modules: performance speeds it up, efficiency saves power, quality changes the yield."
+electrolyzer_manual_flavor,"1. A battery goes on the left; it draws 24 a night. 2. The brine slot takes a container of salt and water. 3. Product A takes an empty or hydrogen canister, product B an empty or chlorine one. 4. Each night it electrolyses 240 mL of salt: every mL of salt uses 0.3 mL of water and gives 1 mL of base (left in the brine container), 0.5 mL of hydrogen and 0.5 mL of chlorine. It stops without salt, water, power or canister room. 5. Takes universal modules: performance speeds it up, efficiency saves power, quality changes the yield. 6. With a liquid container in product A it electrolyses fat instead: 240 mL a night, every mL of fat giving 0.8 mL of toluene (into the container in product A) and 0.5 mL of hydrogen (into an empty or hydrogen canister in product B). 7. The switch at the top right of the feed panel turns it on (blue) or off (red) and starts off; it uses no power while off. 8. Switched on with nothing in the feed slot, it makes nitric oxide from air: 120 mL a night, into an empty or nitric oxide canister in product A."
 electrolyzer_label_module,Modules
-electrolyzer_label_container,Brine
+electrolyzer_label_container,Feed
 electrolyzer_label_products,Products A / B
 electrolyzer_lines_title,"Each night: 1 part salt + 0.3 part water"
 electrolyzer_lines_a,"Red line -> product A: 0.5 part hydrogen"
@@ -260,7 +260,7 @@ electrolysis_4,"[[section:Step 4: Make hydrogen chloride]]\n[[image:vanilla_chem
 electrolysis_5,"[[page]]\n[[section:Step 5: Make strong or weak acid]]\n- Drag the hydrogen chloride canister onto a container with water to dissolve it into acid\n- It dissolves until acid is 40% of the liquid (500 mL of water takes at most 333 mL of acid); the rest of the gas stays in the canister\n- For weaker acid, measure out the strong acid with a Dropper or Graduated Cylinder and add water\n[[gap:4]]\n[[text:Note: hydrogen chloride poured into a container with base is used up neutralizing the base|color=#853737|align=center]]"
 electrolysis_6,"[[section:Step 6: Recover the base]]\n[[image:vanilla_chem_ext:evaporator_b|w=24|h=24|gap=6|float=left]]\n- Take the brine container from step 2, after electrolysis\n- (Optional) Filter out the clay, mineral and other physical contaminants with a Water Filter\n- Put the container in the Evaporator\n- Make sure the Evaporator has an Energy Cell for power\n- Wait until the next day for the Evaporator to finish"
 electrolysis_7,"[[page]]\n[[section:Appendix: ingredients]]\n- Order Rock Salt Ore from GP Mining by phone (6 in 1 day; 12 in 2 days, unlocked once you have spent 350)\n- Any Blender crushes Rock Salt Ore; each gives about 80 mL of salt plus a little clay and mineral\n- The Cartel Vendor sells Empty Gas Canisters\n- A canister holds 5 L; right-click it to vent it"
-electrolysis_8,"[[section:Appendix: the machine]]\n[[text:<u>Electrolyzer</u>|align=left|size=9]]\n[[gap:8]]\n[[image:vanilla_chem_ext:icon_electrolyzer|w=24|h=24|gap=6|float=left]]\n- Sold by the Cartel Vendor with two Empty Gas Canisters\n- Battery on the left, brine container in the middle, product A (hydrogen) top right, product B (chlorine) bottom right\n- Electrolyses 240 mL of salt a night (more with higher performance)\n- Each mL of salt uses 0.3 mL of water and leaves 1 mL of base in the container, plus 0.5 mL each of hydrogen and chlorine\n- Stops when it runs out of salt, water or power, or a canister is full\n- Quality from -100 to +100 scales the output from x0.5 to x1.5"
+electrolysis_8,"[[section:Appendix: the machine]]\n[[text:<u>Electrolyzer</u>|align=left|size=9]]\n[[gap:8]]\n[[image:vanilla_chem_ext:icon_electrolyzer|w=24|h=24|gap=6|float=left]]\n- Sold by the Cartel Vendor with two Empty Gas Canisters\n- Battery on the left, brine container in the middle, product A (hydrogen) top right, product B (chlorine) bottom right\n- Electrolyses 240 mL of salt a night (more with higher performance)\n- Each mL of salt uses 0.3 mL of water and leaves 1 mL of base in the container, plus 0.5 mL each of hydrogen and chlorine\n- Stops when it runs out of salt, water or power, or a canister is full\n- Quality from -100 to +100 scales the output from x0.5 to x1.5\n- With a liquid container in product A, it electrolyses the fat in the feed container instead: each mL of fat gives 0.8 mL of toluene (into the container in product A) and 0.5 mL of hydrogen (into the canister in product B)"
 electrolysis_9,"[[omit]]"
 lantern_notes_name,Incapacitant Production Notes
 lantern_1,"[[section:Step 1: Ingredients]]\n[[image:vanilla_chem_ext:blender_b|w=24|h=24|gap=6|float=left]]\n- Attach a liquid container to the Blender\n- Add some Hollow's Lanterns\n- Blend them into capsaicin"
@@ -430,3 +430,16 @@ filter_residue_hint,"Drag onto a container to pour it out, or onto the drain to 
 cartel_vendor_name,Cartel Vendor
 cartel_vendor_line_1,This week's stock.
 cartel_vendor_line_2,"Take your pick. Prices are fixed."
+liquid_toluene,Toluene
+electrolyzer_lines_fat,"Liquid container in product A: 1 part fat -> 0.8 part toluene (A) + 0.5 part hydrogen (B)"
+electrolyzer_switch_on,"On. Click to switch off"
+electrolyzer_switch_off,"Off. Click to switch on"
+gas_no,Nitric oxide
+gas_canister_no_name,Nitric Oxide Canister
+gas_canister_mixed_name,Mixed Gas Canister
+electrolyzer_lines_no,"Feed slot empty: nitric oxide from air (A), 120 mL a night"
+liquid_nitric_acid,Nitric Acid
+liquid_tnt,Trinitrotoluene
+dynamite_name,Bundle of Dynamite
+dynamite_desc,"Three sticks of TNT taped together, fuses showing. Made in the Chem Finisher from 100 mL of dry trinitrotoluene."
+dynamite_flavor,"The packaging never got finished."

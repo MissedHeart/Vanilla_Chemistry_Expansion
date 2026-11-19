@@ -10,6 +10,21 @@ public static class FlavorChemistry
 {
     public const string ACETIC_ACID = "ia_acetic_acid";
     public const string ETHYL_ACETATE = "ia_ethyl_acetate";
+    // Made by electrolysing fat (Electrolyzer.cs); evaporates, boils at 110.6 C.
+    public const string TOLUENE = "vce_toluene";
+    // Made by dissolving nitric oxide from a gas canister in water (GasCanister.Dissolve); no reactions yet.
+    public const string NITRIC_ACID = "vce_nitric_acid";
+    // Trinitrotoluene, from toluene and nitric acid with vanilla acid as the catalyst (Nitrate below).
+    public const string TNT = "vce_tnt";
+
+    // Nitration: 1 toluene + 3 nitric acid -> 1 TNT (no water, a game rule), at 50 C or more, while vanilla acid
+    // (standing in for sulfuric acid) makes up at least 10% of the liquid; the acid is not used up. 5% of the
+    // toluene a tick, at least 0.5 mL, the pace of dry distillation.
+    public const double NITRATE_TEMP = 50.0;
+    public const double NITRATE_ACID_SHARE = 0.1;
+    public const int NITRIC_PER_TOLUENE = 3;
+    public const double NITRATE_RATE = 0.05;
+    public const int NITRATE_MIN_UL = 500;
 
     // Dry distillation: dry plant matter at 150 C or more -> acetic acid + methanol + char (debris).
     public const double DRY_DISTILL_TEMP = 150.0;
@@ -35,11 +50,88 @@ public static class FlavorChemistry
             ester.boilingPoint = 77.1;
             ester.isEvaporative = true;
         }
+        Liquid toluene = IaLiquids.AddLiquid(TOLUENE, "liquid_toluene", 5, "f7f3d6", 1);
+        if (toluene != null)
+        {
+            toluene.boilingPoint = 110.6;
+            toluene.isEvaporative = true;
+        }
+        IaLiquids.AddLiquid(NITRIC_ACID, "liquid_nitric_acid", 5, "f3edc4", 1);
+        IaLiquids.AddLiquid(TNT, "liquid_tnt", 5, "e8c860", 1);
     }
+
+    // Acetic acid and base neutralize 1:1 like vanilla acid and base (both disappear; 10% of the smaller a tick, at
+    // least 1 mL), but only once the vanilla acid is gone: base goes to the acid first.
+    public const double NEUTRALIZE_RATE = 0.1;
+    public const int NEUTRALIZE_MIN_UL = 1000;
+
+    // A game rule, not real chemistry: at 150 C or more caffeine turns into fat, 5% a tick and at least 0.5 mL, the
+    // same pace as dry distillation. Below that nothing changes, so the vanilla caffeine pill line (alcohol
+    // extraction at 50 C+, evaporator, Chem Finisher) is untouched. Fat neither evaporates nor filters out.
+    public const double CAFFEINE_TO_FAT_TEMP = 150.0;
+    public const double CAFFEINE_TO_FAT_RATE = 0.05;
+    public const int CAFFEINE_TO_FAT_MIN_UL = 500;
 
     public static int Run(GameItem container, double temp)
     {
-        return DryDistill(container, temp) | Esterify(container, temp);
+        return DryDistill(container, temp) | Esterify(container, temp) | Neutralize(container)
+            | CaffeineToFat(container, temp) | Nitrate(container, temp);
+    }
+
+    private static int Nitrate(GameItem container, double temp)
+    {
+        if (temp < NITRATE_TEMP)
+        {
+            return 0;
+        }
+        int toluene = IaLiquids.Get(container, TOLUENE);
+        int nitric = IaLiquids.Get(container, NITRIC_ACID);
+        if (toluene <= 0 || nitric < NITRIC_PER_TOLUENE)
+        {
+            return 0;
+        }
+        if (IaLiquids.Get(container, "acid") < WaterHelper.GetTotalVolume(container) * NITRATE_ACID_SHARE)
+        {
+            return 0;
+        }
+        int limiting = Math.Min(toluene, nitric / NITRIC_PER_TOLUENE);
+        int amount = Math.Min(limiting, Math.Max(NITRATE_MIN_UL, (int)(limiting * NITRATE_RATE)));
+        IaLiquids.Set(container, TOLUENE, toluene - amount);
+        IaLiquids.Set(container, NITRIC_ACID, nitric - amount * NITRIC_PER_TOLUENE);
+        IaLiquids.Set(container, TNT, IaLiquids.Get(container, TNT) + amount);
+        return 1;
+    }
+
+    private static int CaffeineToFat(GameItem container, double temp)
+    {
+        if (temp < CAFFEINE_TO_FAT_TEMP)
+        {
+            return 0;
+        }
+        int caffeine = IaLiquids.Get(container, "caffeine");
+        if (caffeine <= 0)
+        {
+            return 0;
+        }
+        int amount = Math.Min(caffeine, Math.Max(CAFFEINE_TO_FAT_MIN_UL, (int)(caffeine * CAFFEINE_TO_FAT_RATE)));
+        IaLiquids.Set(container, "caffeine", caffeine - amount);
+        IaLiquids.Set(container, "fat", IaLiquids.Get(container, "fat") + amount);
+        return 1;
+    }
+
+    private static int Neutralize(GameItem container)
+    {
+        int acetic = IaLiquids.Get(container, ACETIC_ACID);
+        int alkali = IaLiquids.Get(container, "base");
+        if (acetic <= 0 || alkali <= 0 || IaLiquids.Get(container, "acid") > 0)
+        {
+            return 0;
+        }
+        int limiting = Math.Min(acetic, alkali);
+        int amount = Math.Min(limiting, Math.Max(NEUTRALIZE_MIN_UL, (int)(limiting * NEUTRALIZE_RATE)));
+        IaLiquids.Set(container, ACETIC_ACID, acetic - amount);
+        IaLiquids.Set(container, "base", alkali - amount);
+        return 1;
     }
 
     private static int DryDistill(GameItem container, double temp)

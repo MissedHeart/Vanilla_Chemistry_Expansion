@@ -50,7 +50,7 @@ category_wine_blend,酿造方式
 making_notes_name,勾兑酒酿造笔记
 making_1,"[[image:vanilla_chem_ext:blender_b|w=24|h=24|gap=6|float=left]]\n- 将液体容器接到搅拌机上\n- 加入能产出植物质的原料，如可食用梦帽菇、梦帽菇或梦魇帽菇\n- 搅拌原料；梦帽菇糊和梦魇帽菇糊受热后也会变成植物质\n[[section:第8步：制取乙酸]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- 取下上一步使用的容器\n- 将其放入加热板\n- 将混合物加热至100°C以上蒸干，再加热至150°C以上干馏，使植物质变成乙酸和木炭残渣"
 making_2,"[[section:第9步：制取乙酸乙酯]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- 加入与乙酸体积相同的酒精\n- 加入相当于溶液总体积1%的酸\n- 将混合物加热至60-75°C，使乙酸和酒精生成乙酸乙酯"
-making_3,"[[section:第10步：提纯产物（可选）]]\n- 加入碱液中和，用滤水器过滤除去残渣，溶液中剩下的乙酸乙酯、酒精和水均可以直接使用"
+making_3,"[[section:第10步：提纯产物（可选）]]\n- 等酯化完成后再加入碱液中和：碱会先中和酸，再中和剩余的乙酸\n- 用滤水器过滤除去残渣，溶液中剩下的乙酸乙酯、酒精和水均可以直接使用"
 making_4,"- 勾兑应使酒精占液体总量的20%-25%，每1000毫升液体需要添加1-2毫升乙酸乙酯，其他杂质不应超过液体总量的1%"
 making_5,"[[section:第12步：成型封装]]\n[[image:vanilla_chem_ext:chem_finisher_b|w=24|h=24|gap=6|float=left]]\n- 将容器放入化学制剂成型机\n- 选择“勾兑葡萄酒”配方\n- 按下“输出”按钮\n- （可选）使用成分光谱仪检查纯度\n[[gap:8]]\n[[text:注意：勾兑酒不能陈酿，体积为每瓶750毫升|color=#3D823F|align=center]]"
 making_6,"[[section:警告：甲醇超过液体总量的0.1%时，会危害公共安全|fill=#853737|color=#FFFFFF]]"
@@ -224,7 +224,7 @@ gas_canister_h2_name,氢气罐
 gas_canister_cl2_name,氯气罐
 gas_canister_mix_name,氢氯混合气罐
 gas_canister_hcl_name,氯化氢罐
-gas_canister_desc,一只小号钢瓶，带阀门，最多压进 5 升气体。拖到另一个气罐上可以把气体并过去；装着氯化氢时拖到有水的容器上，可以溶成盐酸。右键可以放气。
+gas_canister_desc,一只小号钢瓶，带阀门，最多压进 5 升气体。拖到另一个气罐上可以把气体并过去；装着氯化氢或一氧化氮时拖到有水的容器上，可以溶成盐酸或硝酸。右键可以放气。
 gas_h2,氢气
 gas_cl2,氯气
 gas_hcl,氯化氢
@@ -234,16 +234,16 @@ gas_canister_tooltip_total,共 {0} / {1} 毫升，{2}°C
 gas_canister_vent,放气
 gas_canister_vented,气罐已放空。
 gas_canister_full,这个气罐已经装满了。
-gas_canister_needs_water,容器里要有水，氯化氢才能溶成盐酸。
-gas_canister_saturated,这份盐酸已经到 40% 了，加点水才能继续溶。
+gas_canister_needs_water,容器里要有水，气体才能溶成酸。
+gas_canister_saturated,这份酸已经到 40% 了，加点水才能继续溶。
 gas_canister_container_full,容器已经满了。
 electrolyzer_name,电解机
-electrolyzer_desc,电解食盐水，产出碱、氢气和氯气。需要电池组，每晚运行一次；容器里要有食盐和水，两个产物槽里要有没装满的气罐。
+electrolyzer_desc,电解食盐水，产出碱、氢气和氯气；产物 A 放液体容器时改为电解油脂，产出甲苯和氢气；原料栏空着时从空气里产出一氧化氮。需要电池组，每晚运行一次。
 electrolyzer_manual_name,电解机使用说明
 electrolyzer_manual_short,电解机附带的使用说明。
-electrolyzer_manual_flavor,1. 左边装电池组，每晚耗电 24。2. 盐水槽放装着食盐和水的容器。3. 产物 A 放空罐或氢气罐，产物 B 放空罐或氯气罐。4. 每晚电解 240 毫升食盐：每 1 毫升食盐耗 0.3 毫升水，生成 1 毫升碱（留在盐水容器里）、0.5 毫升氢气和 0.5 毫升氯气。缺盐、缺水、没电或气罐装满时停机。5. 可装通用模组：性能加快电解，效率省电，质量增减产物。
+electrolyzer_manual_flavor,1. 左边装电池组，每晚耗电 24。2. 盐水槽放装着食盐和水的容器。3. 产物 A 放空罐或氢气罐，产物 B 放空罐或氯气罐。4. 每晚电解 240 毫升食盐：每 1 毫升食盐耗 0.3 毫升水，生成 1 毫升碱（留在盐水容器里）、0.5 毫升氢气和 0.5 毫升氯气。缺盐、缺水、没电或气罐装满时停机。5. 可装通用模组：性能加快电解，效率省电，质量增减产物。6. 产物 A 放液体容器时改为电解油脂：每晚 240 毫升，每 1 毫升油脂生成 0.8 毫升甲苯（流进产物 A 的容器）和 0.5 毫升氢气（进产物 B 的空罐或氢气罐）。7. 原料栏右上角是开关，默认关闭：蓝色运行，红色停机，停机时不耗电。8. 开着开关、原料栏什么都不放时，机器从空气里产出一氧化氮：每晚 120 毫升，进产物 A 的空罐或一氧化氮罐。
 electrolyzer_label_module,模组
-electrolyzer_label_container,盐水
+electrolyzer_label_container,原料
 electrolyzer_label_products,产物 A / B
 electrolyzer_lines_title,每晚电解：1 份食盐 + 0.3 份水
 electrolyzer_lines_a,红线 → 产物 A：0.5 份氢气
@@ -260,7 +260,7 @@ electrolysis_4,"[[section:第4步：制备氯化氢]]\n[[image:vanilla_chem_ext:
 electrolysis_5,"[[section:第5步：溶解制备浓酸/稀酸]]\n- 移动氯化氢罐到盛有水的容器上，可溶解生成盐酸\n- 最多可溶解使酸占液体总量的 40%（即500 毫升水最多溶 333 毫升酸），多余的气体会保留在原罐里\n- 需要制取稀酸时，可用滴管、量筒取浓盐酸兑水稀释\n[[gap:4]]\n[[text:注意：往盛有碱的容器里倾倒氯化氢时，酸会与碱中和消耗|color=#853737|align=center]]"
 electrolysis_6,"[[section:第6步：回收碱液]]\n[[image:vanilla_chem_ext:evaporator_b|w=24|h=24|gap=6|float=left]]\n- 取下第2步中，电解后的盐水容器\n- （可选）使用滤水器过滤，除去泥土、矿物质等物理污染物\n- 将容器放入蒸发器\n- 确保蒸发器装有能量电池供电\n- 等到第二天，让蒸发器完成处理"
 electrolysis_7,"[[section:附录：原料介绍]]\n- 盐矿石可通过电话向 GP 矿业订购（6 块 1 天送到；12 块 2 天送到，累计花满 350 后解锁服务）\n- 任何搅拌机都能打碎盐矿石，每块产出约 80 毫升食盐、少量泥土和矿物质\n- 卡特尔小贩出售空气罐\n- 气罐最多装 5 升，右键可以放气"
-electrolysis_8,"[[section:附录：机器介绍]]\n[[text:<u>电解机</u>|align=left|size=9]]\n[[gap:8]]\n[[image:vanilla_chem_ext:icon_electrolyzer|w=24|h=24|gap=6|float=left]]\n- 卡特尔小贩出售，自带两个空气罐\n- 机器左侧可安装电池，中间可放入盐水容器，右侧上方是产物 A（氢气），右侧下方是产物 B（氯气）\n- 机器每晚电解消耗 240 毫升食盐（此数值随机器性能同步上升）\n- 机器电解时，每消耗 1 毫升食盐需消耗 0.3 毫升水，并在原容器里生成 1 毫升碱，同时产生氢气和氯气各 0.5 毫升\n- 缺盐、缺水、缺电或气罐装满时，机器停止运行\n- 机器质量从 -100 升至 +100 时，产物生成倍率从 x0.5 升至 x1.5"
+electrolysis_8,"[[section:附录：机器介绍]]\n[[text:<u>电解机</u>|align=left|size=9]]\n[[gap:8]]\n[[image:vanilla_chem_ext:icon_electrolyzer|w=24|h=24|gap=6|float=left]]\n- 卡特尔小贩出售，自带两个空气罐\n- 机器左侧可安装电池，中间可放入盐水容器，右侧上方是产物 A（氢气），右侧下方是产物 B（氯气）\n- 机器每晚电解消耗 240 毫升食盐（此数值随机器性能同步上升）\n- 机器电解时，每消耗 1 毫升食盐需消耗 0.3 毫升水，并在原容器里生成 1 毫升碱，同时产生氢气和氯气各 0.5 毫升\n- 缺盐、缺水、缺电或气罐装满时，机器停止运行\n- 机器质量从 -100 升至 +100 时，产物生成倍率从 x0.5 升至 x1.5\n- 产物 A 放入液体容器时，机器改为电解原料容器里的油脂：每 1 毫升油脂生成 0.8 毫升甲苯（流进产物 A 的容器）和 0.5 毫升氢气（进入产物 B 的气罐）"
 electrolysis_9,"[[omit]]"
 lantern_notes_name,失能剂制取笔记
 lantern_1,"[[section:第1步：原料准备]]\n[[image:vanilla_chem_ext:blender_b|w=24|h=24|gap=6|float=left]]\n- 将液体容器接到搅拌机上\n- 加入若干空心灯\n- 搅拌原料，制成辣椒素"
@@ -430,3 +430,16 @@ filter_residue_hint,拖到容器上倒出，拖到排水口倒掉
 cartel_vendor_name,卡特尔小贩
 cartel_vendor_line_1,这周的货。
 cartel_vendor_line_2,要什么自己挑，价钱不还。
+liquid_toluene,甲苯
+electrolyzer_lines_fat,产物 A 放液体容器时：1 份油脂 → 0.8 份甲苯（A）+ 0.5 份氢气（B）
+electrolyzer_switch_on,运行中，点击停机
+electrolyzer_switch_off,已停机，点击运行
+gas_no,一氧化氮
+gas_canister_no_name,一氧化氮罐
+gas_canister_mixed_name,混合气罐
+electrolyzer_lines_no,原料栏空着时：从空气产出一氧化氮（A），每晚 120 毫升
+liquid_nitric_acid,硝酸
+liquid_tnt,三硝基甲苯
+dynamite_name,一捆炸药
+dynamite_desc,三根三硝基甲苯炸药，用胶带捆在一起，引信露在外面。在化学制剂成型机上用 100 毫升干燥的三硝基甲苯制成。
+dynamite_flavor,包装还没做完。
