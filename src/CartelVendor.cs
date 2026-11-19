@@ -100,6 +100,10 @@ public static class CartelVendor
             {
                 stock.Add(Electrolyzer.CreateForSale());
             }
+            if (!Owns(ReloadingPress.IsReloadingPress) || RNG.Roll(OWNED_MACHINE_CHANCE))
+            {
+                stock.Add(DirectoryMaster.Item(ReloadingPress.ITEM_ID, false));
+            }
             stock.Add(GuideBook.CreateForSaleIfUnowned());
             stock.Add(DirectoryMaster.Item(PuBattery.ITEM_ID, false));
             stock.Add(GasCanister.CreateForSale());

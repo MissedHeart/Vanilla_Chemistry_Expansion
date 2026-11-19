@@ -1946,15 +1946,23 @@ public static class GuideBook
     private const float TAB_STEP = 30f;
     private const string TAB_PREFIX = "vce_tab_";
 
+    // Side tabs: chapters whose tab is not in the column but tucked behind it, halfway between the first two column
+    // tabs and longer, so it pokes out past them (the three make a sideways 品). The icon sits on the part that shows.
+    private const float SIDE_TAB_WIDTH = 40f;
+    private const float SIDE_TAB_WIDTH_ON = 46f;
+    private static readonly string[] SideTabs = { "explosives_notes_name" };
+
     private sealed class Bookmark
     {
         internal readonly string Key;
         internal readonly int Page;
+        internal readonly bool Side;
 
         internal Bookmark(string key, int page)
         {
             Key = key;
             Page = page;
+            Side = Array.IndexOf(SideTabs, key) >= 0;
         }
     }
 
@@ -1972,24 +1980,51 @@ public static class GuideBook
         {
             return;
         }
-        // More chapters than fit at the normal spacing: the tabs overlap like stacked index dividers.
-        float step = marks.Count < 2
+        // The column: every tab but the side ones. More chapters than fit at the normal spacing: the tabs overlap like
+        // stacked index dividers.
+        int columnCount = 0;
+        foreach (Bookmark mark in marks)
+        {
+            if (!mark.Side)
+            {
+                columnCount++;
+            }
+        }
+        float step = columnCount < 2
             ? TAB_STEP
-            : Math.Min(TAB_STEP, (TAB_BOTTOM - TAB_TOP - TAB_HEIGHT) / (marks.Count - 1));
+            : Math.Min(TAB_STEP, (TAB_BOTTOM - TAB_TOP - TAB_HEIGHT) / (columnCount - 1));
+        // Side tabs first, so the column is drawn over them.
         for (int index = 0; index < marks.Count; index++)
         {
-            PaperElementData tab = new PaperElementData();
-            tab.type = "button";
-            tab.id = TAB_PREFIX + index;
-            tab.action = TAB_PREFIX + index;
-            tab.sprite = TabSprite(marks[index], false);
-            tab.x = TAB_X;
-            tab.y = TAB_TOP + index * step;
-            tab.w = TAB_WIDTH;
-            tab.h = TAB_HEIGHT;
-            tab.text = string.Empty;
-            book.chrome.Add(tab);
+            if (marks[index].Side)
+            {
+                book.chrome.Add(TabElement(index, marks[index], TAB_TOP + step / 2f, SIDE_TAB_WIDTH));
+            }
         }
+        int row = 0;
+        for (int index = 0; index < marks.Count; index++)
+        {
+            if (!marks[index].Side)
+            {
+                book.chrome.Add(TabElement(index, marks[index], TAB_TOP + row * step, TAB_WIDTH));
+                row++;
+            }
+        }
+    }
+
+    private static PaperElementData TabElement(int index, Bookmark mark, float y, float width)
+    {
+        PaperElementData tab = new PaperElementData();
+        tab.type = "button";
+        tab.id = TAB_PREFIX + index;
+        tab.action = TAB_PREFIX + index;
+        tab.sprite = TabSprite(mark, false);
+        tab.x = TAB_X;
+        tab.y = y;
+        tab.w = width;
+        tab.h = TAB_HEIGHT;
+        tab.text = string.Empty;
+        return tab;
     }
 
     // Opening the book: hook each tab's action (PaperUI clears actions between openings) and mark the current chapter.
@@ -2021,10 +2056,11 @@ public static class GuideBook
         {
             return;
         }
+        // The chapter being read: the one starting latest at or before this page (side tabs are out of page order).
         int current = 0;
         for (int index = 0; index < bookmarks.Count; index++)
         {
-            if (bookmarks[index].Page <= pageIndex)
+            if (bookmarks[index].Page <= pageIndex && bookmarks[index].Page >= bookmarks[current].Page)
             {
                 current = index;
             }
@@ -2049,7 +2085,8 @@ public static class GuideBook
                 tab.image.preserveAspect = false;
             }
             RectTransform rect = tab.image.rectTransform;
-            rect.sizeDelta = new Vector2(on ? TAB_WIDTH_ON : TAB_WIDTH, rect.sizeDelta.y);
+            float width = bookmarks[index].Side ? (on ? SIDE_TAB_WIDTH_ON : SIDE_TAB_WIDTH) : (on ? TAB_WIDTH_ON : TAB_WIDTH);
+            rect.sizeDelta = new Vector2(width, rect.sizeDelta.y);
             tab.image.SetAllDirty();
         }
     }

@@ -107,8 +107,13 @@ px[4, 4] = FUSE_SH
 for cy in range(H // 16):
     for cx in range(W // 16):
         x, y = cx * 16 + 8, cy * 16 + 8
+        # a lone pixel at the centre is not enough for the game: like the beer mug, fill every empty pixel of the
+        # cell with a nearly invisible one (alpha 1)
         if px[x, y][3] == 0:
-            px[x, y] = (0, 0, 0, 2)
+            for yy in range(cy * 16, cy * 16 + 16):
+                for xx in range(cx * 16, cx * 16 + 16):
+                    if px[xx, yy][3] == 0:
+                        px[xx, yy] = (0, 0, 0, 1)
 
 im.save(OUT)
 print(OUT, im.size)

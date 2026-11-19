@@ -241,7 +241,7 @@ electrolyzer_name,电解机
 electrolyzer_desc,电解食盐水，产出碱、氢气和氯气；产物 A 放液体容器时改为电解油脂，产出甲苯和氢气；原料栏空着时从空气里产出一氧化氮。需要电池组，每晚运行一次。
 electrolyzer_manual_name,电解机使用说明
 electrolyzer_manual_short,电解机附带的使用说明。
-electrolyzer_manual_flavor,1. 左边装电池组，每晚耗电 24。2. 盐水槽放装着食盐和水的容器。3. 产物 A 放空罐或氢气罐，产物 B 放空罐或氯气罐。4. 每晚电解 240 毫升食盐：每 1 毫升食盐耗 0.3 毫升水，生成 1 毫升碱（留在盐水容器里）、0.5 毫升氢气和 0.5 毫升氯气。缺盐、缺水、没电或气罐装满时停机。5. 可装通用模组：性能加快电解，效率省电，质量增减产物。6. 产物 A 放液体容器时改为电解油脂：每晚 240 毫升，每 1 毫升油脂生成 0.8 毫升甲苯（流进产物 A 的容器）和 0.5 毫升氢气（进产物 B 的空罐或氢气罐）。7. 原料栏右上角是开关，默认关闭：蓝色运行，红色停机，停机时不耗电。8. 开着开关、原料栏什么都不放时，机器从空气里产出一氧化氮：每晚 120 毫升，进产物 A 的空罐或一氧化氮罐。
+electrolyzer_manual_flavor,1. 左边装电池组，每晚耗电 24。2. 盐水槽放装着食盐和水的容器。3. 产物 A 放空罐或氢气罐，产物 B 放空罐或氯气罐。4. 每晚电解 240 毫升食盐：每 1 毫升食盐耗 0.3 毫升水，生成 1 毫升碱（留在盐水容器里）、0.5 毫升氢气和 0.5 毫升氯气。缺盐、缺水、没电或气罐装满时停机。5. 可装通用模组：性能加快电解，效率省电，质量增减产物。6. 产物 A 放液体容器时改为电解油脂：每晚 240 毫升，每 1 毫升油脂生成 0.8 毫升甲苯（流进产物 A 的容器）和 0.5 毫升氢气（进产物 B 的空罐或氢气罐）。7. 原料栏右上角是开关，默认关闭：蓝色运行，红色停机，停机时不耗电。8. 开着开关、原料栏什么都不放时，机器从空气里产出一氧化氮：每晚 375 毫升，进产物 A 的空罐或一氧化氮罐。
 electrolyzer_label_module,模组
 electrolyzer_label_container,原料
 electrolyzer_label_products,产物 A / B
@@ -437,9 +437,45 @@ electrolyzer_switch_off,已停机，点击运行
 gas_no,一氧化氮
 gas_canister_no_name,一氧化氮罐
 gas_canister_mixed_name,混合气罐
-electrolyzer_lines_no,原料栏空着时：从空气产出一氧化氮（A），每晚 120 毫升
+electrolyzer_lines_no,原料栏空着时：从空气产出一氧化氮（A），每晚 375 毫升
 liquid_nitric_acid,硝酸
 liquid_tnt,三硝基甲苯
 dynamite_name,一捆炸药
-dynamite_desc,三根三硝基甲苯炸药，用胶带捆在一起，引信露在外面。在化学制剂成型机上用 100 毫升干燥的三硝基甲苯制成。
+dynamite_desc,三根三硝基甲苯炸药，用胶带捆在一起，引信露在外面。在化学制剂成型机上用 250 毫升干燥的三硝基甲苯制成。
 dynamite_flavor,包装还没做完。
+nitrocellulose_s_name,一小份硝酸纤维素
+nitrocellulose_name,硝酸纤维素
+nitrocellulose_l_name,一大份硝酸纤维素
+nitrocellulose_desc,用硝酸处理过的韧棉纤维，一团白色的絮状物，很容易烧起来。
+reloading_press_name,子弹复装机
+reloading_press_desc,手动压制手枪子弹的小台子。硝酸纤维素倒进药斗作发射药，每颗耗用量等于子弹原价；穿甲弹还要从液体容器里取三硝基甲苯。
+reloading_press_label_powder,硝酸纤维素
+reloading_press_label_container,液体容器
+reloading_press_label_output,输出
+reloading_press_label_control,控制
+reloading_press_btn_press,压制
+reloading_press_caliber_small,口径：.22 手枪
+reloading_press_caliber_heavy,口径：重型手枪
+reloading_press_type_0,弹种：非致命
+reloading_press_type_1,弹种：普通
+reloading_press_type_2,弹种：穿甲
+reloading_press_cost,每颗耗发射药 {0}
+reloading_press_cost_tnt,每颗耗发射药 {0}、三硝基甲苯 {1} 毫升
+reloading_press_hopper,药斗：{0} / {1}
+reloading_press_status_ready,可以压制
+reloading_press_status_no_powder,发射药不够
+reloading_press_status_no_tnt,三硝基甲苯不够
+reloading_press_status_full,输出栏满了。
+explosives_notes_name,炸药制取笔记
+explosives_1,[[section:第1步：制备一氧化氮]]\n[[image:vanilla_chem_ext:icon_electrolyzer|w=24|h=24|gap=6|float=left]]\n- 确保电解机的原料栏为空\n- 在产物 A 放入一个空气罐\n- 确保电解机装有能量电池供电，并打开原料面板右上角的开关\n- 等到第二天，从产物 A 的气罐中收集一氧化氮\n[[gap:4]]\n[[text:注意：电解机的开关默认处于关闭状态（红色），需要手动打开（蓝色）|color=#853737]]
+explosives_2,[[section:第2步：制备硝酸]]\n- 移动一氧化氮罐到盛有水的容器上，可溶解生成硝酸\n- 最多可溶解使硝酸占液体总量的 40%（即 500 毫升水最多溶 333 毫升硝酸），多余的气体会保留在原罐里
+explosives_3,[[section:第3步：原料准备]]\n[[image:vanilla_chem_ext:blender_b|w=24|h=24|gap=6|float=left]]\n- 将液体容器接到搅拌机上\n- 加入若干咖啡豆\n- 搅拌原料，制成咖啡渣、油脂和咖啡因
+explosives_4,[[section:第4步：制备油脂]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- 取下上一步使用的容器\n- 将其放入加热板\n- （可选）加入酒精并加热至 50°C 以上，使咖啡渣转化成咖啡因\n- 将混合物加热至 150°C 以上，使咖啡因转化成油脂\n[[gap:4]]\n[[text:提示：装有化学设备模组的加热板方可升温至 150°C|color=#3D823F|align=center]]
+explosives_5,[[section:第5步：制备甲苯]]\n[[image:vanilla_chem_ext:icon_electrolyzer|w=24|h=24|gap=6|float=left]]\n- 取下上一步使用的容器\n- 将其放入电解机的原料栏\n- 在产物 A 放入一个空的液体容器，在产物 B 放入一个空气罐\n- 确保电解机装有能量电池供电，并打开开关\n- 等到第二天，从产物 A 的容器中收集甲苯\n[[gap:4]]\n[[text:注意：甲苯的沸点是 110.6°C，温度过高会产生损耗|color=#853737]]
+explosives_6,[[section:第6步：硝化]]\n[[image:vanilla_chem_ext:heating_plate_b|w=24|h=24|gap=6|float=left]]\n- 将甲苯与硝酸按 1:3 的体积混合\n- 加入相当于溶液总体积 10% 的酸\n- 将混合物加热至 50°C 以上，使甲苯和硝酸生成三硝基甲苯\n[[gap:4]]\n[[text:提示：酸在反应中起催化作用，不会被消耗|color=#3D823F|align=center]]
+explosives_7,[[section:第7步：提纯]]\n[[image:vanilla_chem_ext:evaporator_b|w=24|h=24|gap=6|float=left]]\n- 等硝化完成后再加入碱液中和，除去剩余的酸\n- 将容器放入蒸发器\n- 确保蒸发器装有能量电池供电\n- 等到第二天，让蒸发器完成处理\n[[gap:4]]\n[[text:注意：未反应完的甲苯和硝酸会降低纯度，请按比例配料|color=#853737]]
+explosives_8,[[section:第8步：成型封装]]\n[[image:vanilla_chem_ext:chem_finisher_b|w=24|h=24|gap=6|float=left]]\n- （必需）待水全部蒸发后，将容器放入化学制剂成型机\n- 选择“一捆炸药”配方\n- 按下“输出”按钮\n- （可选）使用成分光谱仪检查纯度\n[[gap:8]]\n[[text:注意：每捆炸药需要 250 毫升三硝基甲苯|color=#3D823F|align=center]]
+explosives_9,[[page]]\n[[section:附录：原料介绍]]\n- 一颗咖啡豆约可产出 8 毫升油脂和 4.4 毫升咖啡因；用酒精提取时，最多可将 75% 的咖啡渣转化成咖啡因\n- 每 1 毫升油脂可电解生成 0.8 毫升甲苯；每 1 毫升甲苯需要 3 毫升硝酸，生成 1 毫升三硝基甲苯\n- 一捆炸药约需要 10 颗咖啡豆，以及电解机 2 个晚上生产的一氧化氮
+explosives_10,[[section:附录：产物介绍]]\n- 炸药是高危违禁品，下层区和革命军会采购\n- 同一天向下层区或革命军售出两捆以上炸药后，第二天必定发生一起涨价事件
+explosives_11,[[section:附录：硝酸纤维素]]\n- 移动盛有硝酸的容器到韧棉纤维上，可将其转化成硝酸纤维素\n- 小份、普通、大份韧棉纤维分别消耗 30、40、50 毫升硝酸\n- 硝酸纤维素可作为子弹复装机的发射药
+explosives_12,[[section:附录：机器介绍]]\n[[text:<u>子弹复装机</u>|align=left|size=9]]\n[[gap:8]]\n- 卡特尔小贩出售\n- 机器左侧可放入硝酸纤维素，中间可放入液体容器，右侧是输出栏和控制面板\n- 放入的硝酸纤维素会自动倒进药斗：小份、普通、大份分别折合 54、69、90 份发射药，药斗最多容纳 300 份\n- 通过控制面板选择口径（.22 手枪、重型手枪）和弹种（非致命、普通、穿甲），每按一次“压制”产出一颗子弹\n- 每颗子弹消耗与其原价相同的发射药：.22 手枪弹为 14、20、26 份，重型手枪弹为 24、30、36 份\n- 制作穿甲弹时还会消耗容器里的三硝基甲苯：.22 手枪弹每颗 3 毫升，重型手枪弹每颗 4 毫升\n- 发射药或三硝基甲苯不足、输出栏装满时，机器无法压制

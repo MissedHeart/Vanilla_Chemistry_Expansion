@@ -19,12 +19,12 @@ public static class FlavorChemistry
 
     // Nitration: 1 toluene + 3 nitric acid -> 1 TNT (no water, a game rule), at 50 C or more, while vanilla acid
     // (standing in for sulfuric acid) makes up at least 10% of the liquid; the acid is not used up. 5% of the
-    // toluene a tick, at least 0.5 mL, the pace of dry distillation.
+    // toluene a tick, at least 2 mL, so small batches and the end of a batch do not crawl.
     public const double NITRATE_TEMP = 50.0;
     public const double NITRATE_ACID_SHARE = 0.1;
     public const int NITRIC_PER_TOLUENE = 3;
     public const double NITRATE_RATE = 0.05;
-    public const int NITRATE_MIN_UL = 500;
+    public const int NITRATE_MIN_UL = 2000;
 
     // Dry distillation: dry plant matter at 150 C or more -> acetic acid + methanol + char (debris).
     public const double DRY_DISTILL_TEMP = 150.0;
@@ -65,12 +65,12 @@ public static class FlavorChemistry
     public const double NEUTRALIZE_RATE = 0.1;
     public const int NEUTRALIZE_MIN_UL = 1000;
 
-    // A game rule, not real chemistry: at 150 C or more caffeine turns into fat, 5% a tick and at least 0.5 mL, the
+    // A game rule, not real chemistry: at 150 C or more caffeine turns into fat, 5% a tick and at least 2 mL (small batches and the tail go quickly), the
     // same pace as dry distillation. Below that nothing changes, so the vanilla caffeine pill line (alcohol
     // extraction at 50 C+, evaporator, Chem Finisher) is untouched. Fat neither evaporates nor filters out.
     public const double CAFFEINE_TO_FAT_TEMP = 150.0;
     public const double CAFFEINE_TO_FAT_RATE = 0.05;
-    public const int CAFFEINE_TO_FAT_MIN_UL = 500;
+    public const int CAFFEINE_TO_FAT_MIN_UL = 2000;
 
     public static int Run(GameItem container, double temp)
     {

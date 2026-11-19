@@ -9,7 +9,7 @@
 //   1 mL fat -> 0.8 mL toluene (into the container in product A) + 0.5 mL hydrogen (into the canister in product B)
 // 240 mL of fat a night x performance, products x quality, as above. Product B then takes empty, chlorine or
 // hydrogen canisters (a canister holding the other gas stops the run). With nothing in the feed slot at all, it makes
-// 120 mL of nitric oxide a night from air into an empty or nitric oxide canister in product A. It only runs while the
+// 375 mL of nitric oxide a night from air into an empty or nitric oxide canister in product A. It only runs while the
 // switch in the feed panel is on (off by default). Written for C# 5 (see DreamToxinMod.cs).
 using System;
 using System.Collections.Generic;
@@ -39,9 +39,9 @@ public static class Electrolyzer
     public const double TOLUENE_PER_FAT = 0.8;
     public const double HYDROGEN_PER_FAT = 0.5;
 
-    // Switched on with nothing in the feed slot, the arc burns air into nitric oxide: 120 mL a night into the canister
+    // Switched on with nothing in the feed slot, the arc burns air into nitric oxide: 375 mL a night into the canister
     // in product A, x performance and x quality like the other runs.
-    public const int NO_PER_NIGHT_UL = 120000;
+    public const int NO_PER_NIGHT_UL = 375000;
 
     private class Slots
     {

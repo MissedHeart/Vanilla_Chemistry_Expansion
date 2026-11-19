@@ -30,6 +30,7 @@ public class DreamToxinMod : IMod
         SaltOre.Enable();
         GasCanister.Enable();
         Electrolyzer.Enable();
+        ReloadingPress.Enable();
         PuBattery.Enable();
         Strain.Enable();
         Fermenter.Enable();
@@ -40,6 +41,7 @@ public class DreamToxinMod : IMod
         Antibiotics.Enable();
         Resistance.Enable();
         AntibioticTestKit.Enable();
+        ExplosivesTestKit.Enable();
         CartelNetwork.Enable();
         CartelRaid.Enable();
         CartelSweep.Enable();
@@ -98,6 +100,7 @@ public class DreamToxinMod : IMod
         Antibiotics.Disable();
         Resistance.Disable();
         AntibioticTestKit.Disable();
+        ExplosivesTestKit.Disable();
         CartelNetwork.Disable();
         CartelRaid.Disable();
         CartelSweep.Disable();
@@ -133,6 +136,8 @@ public class DreamToxinMod : IMod
             SaltOre.AddItems(directory);
             GasCanister.AddItems(directory);
             Electrolyzer.AddItems(directory);
+            Nitrocellulose.AddItems(directory);
+            ReloadingPress.AddItems(directory);
             PuBattery.AddItems(directory);
             Strain.AddItems(directory);
             Fermenter.AddItems(directory);
@@ -902,7 +907,21 @@ public static class Notes
         LineKeys = new string[] { "abx_1", "abx_2", "abx_traits", "abx_3" }
     };
 
-    public static readonly HandNote[] All = new HandNote[] { ToxinFormula, OreNotes, WineMaking, WineSelling, BeerBrewing, BeerTable, Reprocessing, CrackineNotes, LanternNotes, ElectrolysisNotes, AntibioticNotes };
+    // Its handbook tab sits beside the column, between the cover's and the Dream Toxin formula's (GuideBook.SideTabs).
+    public static readonly HandNote ExplosivesNotes = new HandNote
+    {
+        ItemId = "vce.explosives_notes",
+        Tag = "VCE_EXPLOSIVES_NOTES_TAG",
+        NameKey = "explosives_notes_name",
+        TitleKey = "explosives_notes_name",
+        LineKeys = new string[]
+        {
+            "explosives_1", "explosives_2", "explosives_3", "explosives_4", "explosives_5", "explosives_6",
+            "explosives_7", "explosives_8", "explosives_9", "explosives_10", "explosives_11", "explosives_12"
+        }
+    };
+
+    public static readonly HandNote[] All = new HandNote[] { ToxinFormula, OreNotes, WineMaking, WineSelling, BeerBrewing, BeerTable, Reprocessing, CrackineNotes, LanternNotes, ElectrolysisNotes, AntibioticNotes, ExplosivesNotes };
 }
 
 public static class DebugKit

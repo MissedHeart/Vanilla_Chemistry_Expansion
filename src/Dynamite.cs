@@ -6,8 +6,10 @@
 //                   so 47.5 a bean.
 //   dynamite:       the same caffeine turned to fat at 150 C plus the bean's 8 mL of fat = 31.75 mL fat -> 25.4 mL
 //                   toluene -> 25.4 mL TNT (with 76.2 mL nitric acid, i.e. 76.2 mL nitric oxide from the
-//                   electrolyzer). 125 per 100 mL x2 contraband markup = 63.5, less about 1.85 of battery power
-//                   (0.76 electrolyzer nights at 24 power, energy at 0.1 a unit) = 61.7, about 30% over pills.
+//                   electrolyzer). 1.26 a mL (315 per 250 mL) x2 contraband markup = 64.0, less about 0.8 of battery
+//                   power (0.2 nights of nitric oxide at 375 mL a night + 0.13 of fat electrolysis, at 24 power a night
+//                   and 0.1 a unit) = 63.2, about 33% over pills.
+// One bundle is 250 mL of TNT: about 10 beans' worth, and 750 mL of nitric oxide, two electrolyzer nights.
 // Written for C# 5 (see DreamToxinMod.cs).
 using System;
 
@@ -15,8 +17,8 @@ public static class Dynamite
 {
     public const string ITEM_ID = "vce_dynamite";
     public const string SPRITE = "vce_dynamite";
-    public const int REQUIRED_VOLUME = 100000;  // 100 mL of TNT
-    public const long VALUE = 125;
+    public const int REQUIRED_VOLUME = 250000;
+    public const long VALUE = 315;
     public const int CONTRABAND_LEVEL = 3;
 
     public static void Register()
